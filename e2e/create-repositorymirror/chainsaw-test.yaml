@@ -5,6 +5,18 @@ metadata:
 spec:
   description: Verify creating a RepositoryMirror CR reconciles successfully
   steps:
+    - name: create-credentials-secret
+      try:
+        - apply:
+            resource:
+              apiVersion: v1
+              kind: Secret
+              metadata:
+                name: quay-credentials
+              stringData:
+                host: "http://quay-mock.quay-system.svc.cluster.local"
+                token: "e2e-test-token"
+                validateCerts: "false"
     - name: create-repositorymirror
       try:
         - apply:
@@ -16,7 +28,6 @@ spec:
               spec:
                 connSecretRef:
                   name: quay-credentials
-                  namespace: quay-system
                 name: testorg/testrepo
                 externalReference: kind-registry:5000/ayoy/quay-config-operator
                 robotUsername: testorg+robot

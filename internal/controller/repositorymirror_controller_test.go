@@ -145,7 +145,7 @@ var _ = Describe("RepositoryMirror Controller", func() {
 	Context("When creating a new RepositoryMirror", func() {
 		It("should create the mirror in Quay", func() {
 			mirror := createMirrorCR(mirrorName+"-create", quayv1alpha1.RepositoryMirrorSpec{
-				ConnSecretRef: quayv1alpha1.ConnSecretRef{
+				ConnSecretRef: quayv1alpha1.LocalSecretRef{
 					Name: secretName,
 				},
 				Name:              repoName,
@@ -228,7 +228,7 @@ var _ = Describe("RepositoryMirror Controller", func() {
 			}
 
 			mirror := createMirrorCR(mirrorName+"-update", quayv1alpha1.RepositoryMirrorSpec{
-				ConnSecretRef: quayv1alpha1.ConnSecretRef{
+				ConnSecretRef: quayv1alpha1.LocalSecretRef{
 					Name: secretName,
 				},
 				Name:              repoName,
@@ -302,7 +302,7 @@ var _ = Describe("RepositoryMirror Controller", func() {
 			}
 
 			mirror := createMirrorCR(mirrorName+"-delete", quayv1alpha1.RepositoryMirrorSpec{
-				ConnSecretRef: quayv1alpha1.ConnSecretRef{
+				ConnSecretRef: quayv1alpha1.LocalSecretRef{
 					Name: secretName,
 				},
 				Name:              repoName,
@@ -378,7 +378,7 @@ var _ = Describe("RepositoryMirror Controller", func() {
 
 			preserve := true
 			mirror := createMirrorCR(mirrorName+"-preserve", quayv1alpha1.RepositoryMirrorSpec{
-				ConnSecretRef: quayv1alpha1.ConnSecretRef{
+				ConnSecretRef: quayv1alpha1.LocalSecretRef{
 					Name: secretName,
 				},
 				Name:                     repoName,
@@ -423,7 +423,7 @@ var _ = Describe("RepositoryMirror Controller", func() {
 	Context("When the connection secret is not found", func() {
 		It("should set error condition", func() {
 			mirror := createMirrorCR(mirrorName+"-nosecret", quayv1alpha1.RepositoryMirrorSpec{
-				ConnSecretRef: quayv1alpha1.ConnSecretRef{
+				ConnSecretRef: quayv1alpha1.LocalSecretRef{
 					Name: "nonexistent-secret",
 				},
 				Name:              repoName,
@@ -461,7 +461,7 @@ var _ = Describe("RepositoryMirror Controller", func() {
 	Context("When the repository name is invalid", func() {
 		It("should set error condition", func() {
 			mirror := createMirrorCR(mirrorName+"-invalidname", quayv1alpha1.RepositoryMirrorSpec{
-				ConnSecretRef: quayv1alpha1.ConnSecretRef{
+				ConnSecretRef: quayv1alpha1.LocalSecretRef{
 					Name: secretName,
 				},
 				Name:              "invalid-no-slash",
@@ -524,7 +524,7 @@ var _ = Describe("RepositoryMirror Controller", func() {
 
 			forceSync := true
 			mirror := createMirrorCR(mirrorName+"-sync", quayv1alpha1.RepositoryMirrorSpec{
-				ConnSecretRef: quayv1alpha1.ConnSecretRef{
+				ConnSecretRef: quayv1alpha1.LocalSecretRef{
 					Name: secretName,
 				},
 				Name:              repoName,

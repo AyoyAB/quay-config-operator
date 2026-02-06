@@ -363,28 +363,23 @@ func (r *RepositoryMirrorReconciler) getExternalRegistryCredentials(ctx context.
 }
 
 func (r *RepositoryMirrorReconciler) buildQuayClient(ctx context.Context, mirror *quayv1alpha1.RepositoryMirror) (*quay.Client, error) {
-	secretNamespace := mirror.Spec.ConnSecretRef.Namespace
-	if secretNamespace == "" {
-		secretNamespace = mirror.Namespace
-	}
-
 	var secret corev1.Secret
 	secretKey := types.NamespacedName{
 		Name:      mirror.Spec.ConnSecretRef.Name,
-		Namespace: secretNamespace,
+		Namespace: mirror.Namespace,
 	}
 	if err := r.Get(ctx, secretKey, &secret); err != nil {
-		return nil, fmt.Errorf("failed to get connection secret %s/%s: %w", secretNamespace, mirror.Spec.ConnSecretRef.Name, err)
+		return nil, fmt.Errorf("failed to get connection secret %s: %w", mirror.Spec.ConnSecretRef.Name, err)
 	}
 
 	host := string(secret.Data["host"])
 	if host == "" {
-		return nil, fmt.Errorf("connection secret %s/%s is missing 'host' key", secretNamespace, mirror.Spec.ConnSecretRef.Name)
+		return nil, fmt.Errorf("connection secret %s is missing 'host' key", mirror.Spec.ConnSecretRef.Name)
 	}
 
 	token := string(secret.Data["token"])
 	if token == "" {
-		return nil, fmt.Errorf("connection secret %s/%s is missing 'token' key", secretNamespace, mirror.Spec.ConnSecretRef.Name)
+		return nil, fmt.Errorf("connection secret %s is missing 'token' key", mirror.Spec.ConnSecretRef.Name)
 	}
 
 	var opts []quay.ClientOption

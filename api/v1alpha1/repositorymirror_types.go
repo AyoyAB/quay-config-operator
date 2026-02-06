@@ -20,16 +20,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// ConnSecretRef references a Secret containing Quay connection details.
-type ConnSecretRef struct {
-	// Name of the secret resource.
-	Name string `json:"name"`
-
-	// Namespace of the secret resource. Defaults to the namespace of the RepositoryMirror resource.
-	// +optional
-	Namespace string `json:"namespace,omitempty"`
-}
-
 // LocalSecretRef references a Secret in the same namespace as the referencing resource.
 type LocalSecretRef struct {
 	// Name of the secret resource.
@@ -39,7 +29,8 @@ type LocalSecretRef struct {
 // RepositoryMirrorSpec defines the desired state of RepositoryMirror.
 type RepositoryMirrorSpec struct {
 	// ConnSecretRef references a Secret with `host`, `token`, and optional `validateCerts` keys.
-	ConnSecretRef ConnSecretRef `json:"connSecretRef"`
+	// The Secret must be in the same namespace as the RepositoryMirror resource.
+	ConnSecretRef LocalSecretRef `json:"connSecretRef"`
 
 	// Name is the repository in "namespace/shortname" format.
 	Name string `json:"name"`

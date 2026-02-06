@@ -59,15 +59,12 @@ spec:
             description: RepositoryMirrorSpec defines the desired state of RepositoryMirror.
             properties:
               connSecretRef:
-                description: ConnSecretRef references a Secret with `host`, `token`,
-                  and optional `validateCerts` keys.
+                description: |-
+                  ConnSecretRef references a Secret with `host`, `token`, and optional `validateCerts` keys.
+                  The Secret must be in the same namespace as the RepositoryMirror resource.
                 properties:
                   name:
                     description: Name of the secret resource.
-                    type: string
-                  namespace:
-                    description: Namespace of the secret resource. Defaults to the
-                      namespace of the RepositoryMirror resource.
                     type: string
                 required:
                 - name
