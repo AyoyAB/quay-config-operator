@@ -19,6 +19,7 @@ package controller
 import (
 	"context"
 	"fmt"
+	"net/url"
 	"strings"
 	"time"
 
@@ -375,6 +376,17 @@ func (r *RepositoryMirrorReconciler) buildQuayClient(ctx context.Context, mirror
 	host := string(secret.Data["host"])
 	if host == "" {
 		return nil, fmt.Errorf("connection secret %s is missing 'host' key", mirror.Spec.ConnSecretRef.Name)
+	}
+
+	parsedURL, err := url.Parse(host)
+	if err != nil {
+		return nil, fmt.Errorf("connection secret %s has invalid 'host' URL: %w", mirror.Spec.ConnSecretRef.Name, err)
+	}
+	if parsedURL.Scheme != "https" && parsedURL.Scheme != "http" {
+		return nil, fmt.Errorf("connection secret %s 'host' must use http or https scheme, got %q", mirror.Spec.ConnSecretRef.Name, parsedURL.Scheme)
+	}
+	if parsedURL.Host == "" {
+		return nil, fmt.Errorf("connection secret %s 'host' is missing hostname", mirror.Spec.ConnSecretRef.Name)
 	}
 
 	token := string(secret.Data["token"])
