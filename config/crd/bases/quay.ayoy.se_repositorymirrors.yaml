@@ -76,14 +76,17 @@ spec:
                 description: ExternalReference is the path to the remote container
                   repository to synchronize.
                 type: string
-              externalRegistryPassword:
-                description: ExternalRegistryPassword is the password for pulling
-                  from the remote registry.
-                type: string
-              externalRegistryUsername:
-                description: ExternalRegistryUsername is the username for pulling
-                  from the remote registry.
-                type: string
+              externalRegistryCredentialsRef:
+                description: |-
+                  ExternalRegistryCredentialsRef references a Secret with `username` and `password` keys
+                  for pulling from the external registry.
+                properties:
+                  name:
+                    description: Name of the secret resource.
+                    type: string
+                required:
+                - name
+                type: object
               forceSync:
                 description: ForceSync triggers an immediate image synchronization.
                 type: boolean

@@ -30,6 +30,12 @@ type ConnSecretRef struct {
 	Namespace string `json:"namespace,omitempty"`
 }
 
+// LocalSecretRef references a Secret in the same namespace as the referencing resource.
+type LocalSecretRef struct {
+	// Name of the secret resource.
+	Name string `json:"name"`
+}
+
 // RepositoryMirrorSpec defines the desired state of RepositoryMirror.
 type RepositoryMirrorSpec struct {
 	// ConnSecretRef references a Secret with `host`, `token`, and optional `validateCerts` keys.
@@ -62,13 +68,10 @@ type RepositoryMirrorSpec struct {
 	// +optional
 	SyncStartDate string `json:"syncStartDate,omitempty"`
 
-	// ExternalRegistryUsername is the username for pulling from the remote registry.
+	// ExternalRegistryCredentialsRef references a Secret with `username` and `password` keys
+	// for pulling from the external registry.
 	// +optional
-	ExternalRegistryUsername string `json:"externalRegistryUsername,omitempty"`
-
-	// ExternalRegistryPassword is the password for pulling from the remote registry.
-	// +optional
-	ExternalRegistryPassword string `json:"externalRegistryPassword,omitempty"`
+	ExternalRegistryCredentialsRef *LocalSecretRef `json:"externalRegistryCredentialsRef,omitempty"`
 
 	// HttpProxy is the HTTP proxy for accessing the remote container registry.
 	// +optional

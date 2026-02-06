@@ -239,14 +239,19 @@ func (r *RepositoryMirrorReconciler) createMirror(
 		syncStartDate = time.Now().UTC().Format("2006-01-02T15:04:05Z")
 	}
 
+	extUsername, extPassword, err := r.getExternalRegistryCredentials(ctx, mirror)
+	if err != nil {
+		return fmt.Errorf("external registry credentials: %w", err)
+	}
+
 	createReq := &quay.MirrorCreateRequest{
 		IsEnabled:                isEnabled,
 		ExternalReference:        mirror.Spec.ExternalReference,
 		SyncInterval:             syncInterval,
 		SyncStartDate:            syncStartDate,
 		RobotUsername:            mirror.Spec.RobotUsername,
-		ExternalRegistryUsername: mirror.Spec.ExternalRegistryUsername,
-		ExternalRegistryPassword: mirror.Spec.ExternalRegistryPassword,
+		ExternalRegistryUsername: extUsername,
+		ExternalRegistryPassword: extPassword,
 	}
 
 	// Build external registry config
@@ -267,18 +272,23 @@ func (r *RepositoryMirrorReconciler) createMirror(
 }
 
 func (r *RepositoryMirrorReconciler) updateMirror(
-	_ context.Context,
+	ctx context.Context,
 	mirror *quayv1alpha1.RepositoryMirror,
 	quayClient *quay.Client,
 	namespace, repoName string,
 ) error {
+	extUsername, extPassword, err := r.getExternalRegistryCredentials(ctx, mirror)
+	if err != nil {
+		return fmt.Errorf("external registry credentials: %w", err)
+	}
+
 	updateReq := &quay.MirrorUpdateRequest{
 		IsEnabled:                mirror.Spec.IsEnabled,
 		ExternalReference:        mirror.Spec.ExternalReference,
 		RobotUsername:            mirror.Spec.RobotUsername,
 		SyncStartDate:            mirror.Spec.SyncStartDate,
-		ExternalRegistryUsername: mirror.Spec.ExternalRegistryUsername,
-		ExternalRegistryPassword: mirror.Spec.ExternalRegistryPassword,
+		ExternalRegistryUsername: extUsername,
+		ExternalRegistryPassword: extPassword,
 	}
 
 	if mirror.Spec.SyncInterval != "" {
@@ -333,6 +343,23 @@ func (r *RepositoryMirrorReconciler) buildExternalRegistryConfig(mirror *quayv1a
 		return config
 	}
 	return nil
+}
+
+func (r *RepositoryMirrorReconciler) getExternalRegistryCredentials(ctx context.Context, mirror *quayv1alpha1.RepositoryMirror) (string, string, error) {
+	if mirror.Spec.ExternalRegistryCredentialsRef == nil {
+		return "", "", nil
+	}
+
+	var secret corev1.Secret
+	secretKey := types.NamespacedName{
+		Name:      mirror.Spec.ExternalRegistryCredentialsRef.Name,
+		Namespace: mirror.Namespace,
+	}
+	if err := r.Get(ctx, secretKey, &secret); err != nil {
+		return "", "", fmt.Errorf("failed to get external registry credentials secret %s: %w", mirror.Spec.ExternalRegistryCredentialsRef.Name, err)
+	}
+
+	return string(secret.Data["username"]), string(secret.Data["password"]), nil
 }
 
 func (r *RepositoryMirrorReconciler) buildQuayClient(ctx context.Context, mirror *quayv1alpha1.RepositoryMirror) (*quay.Client, error) {
