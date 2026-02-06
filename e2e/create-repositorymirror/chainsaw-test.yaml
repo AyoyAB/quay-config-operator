@@ -5,18 +5,6 @@ metadata:
 spec:
   description: Verify creating a RepositoryMirror CR reconciles successfully
   steps:
-    - name: create-secret
-      try:
-        - apply:
-            resource:
-              apiVersion: v1
-              kind: Secret
-              metadata:
-                name: quay-credentials
-              stringData:
-                host: http://quay-mock:8080
-                token: test-token
-                validateCerts: "false"
     - name: create-repositorymirror
       try:
         - apply:
@@ -28,13 +16,13 @@ spec:
               spec:
                 connSecretRef:
                   name: quay-credentials
+                  namespace: quay-system
                 name: testorg/testrepo
-                externalReference: registry.example.com/testrepo
+                externalReference: kind-registry:5000/ayoy/quay-config-operator
                 robotUsername: testorg+robot
                 isEnabled: true
                 imageTags:
                   - "latest"
-                  - "v1.0"
                 syncInterval: "86400"
     - name: assert-status-updated
       try:
@@ -47,5 +35,7 @@ spec:
               status:
                 existInQuay: true
                 conditions:
+                  - type: Running
+                    status: "False"
                   - type: Successful
                     status: "True"

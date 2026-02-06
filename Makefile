@@ -98,14 +98,17 @@ undeploy: kustomize ## Undeploy controller from the K8s cluster specified in ~/.
 ##@ Kind
 
 KIND_CLUSTER_NAME ?= quay-config-operator
+export LOCAL_REGISTRY_PORT ?= 5001
+export KUBECONFIG ?= ~/.kube/home-cluster-argo
 
 .PHONY: kind-create
-kind-create: ## Create a Kind cluster for development.
-	kind create cluster --name $(KIND_CLUSTER_NAME)
+kind-create: ## Create Kind cluster with local registry.
+	hack/setup-kind.sh $(KIND_CLUSTER_NAME) $(LOCAL_REGISTRY_PORT)
 
 .PHONY: kind-delete
-kind-delete: ## Delete the Kind cluster.
+kind-delete: ## Delete the Kind cluster and local registry.
 	kind delete cluster --name $(KIND_CLUSTER_NAME)
+	docker rm -f kind-registry 2>/dev/null || true
 
 .PHONY: kind-load
 kind-load: docker-build ## Build and load docker image into Kind cluster.
@@ -113,8 +116,16 @@ kind-load: docker-build ## Build and load docker image into Kind cluster.
 
 ##@ E2E Testing
 
+.PHONY: quay-setup
+quay-setup: ## Deploy quay-mock and create test credentials.
+	hack/setup-quay.sh
+
+.PHONY: mirror-image-setup
+mirror-image-setup: ## Build and push the test mirror source image.
+	hack/setup-mirror-image.sh $(LOCAL_REGISTRY_PORT)
+
 .PHONY: test-e2e
-test-e2e: kind-load deploy chainsaw ## Run e2e tests with chainsaw against a Kind cluster.
+test-e2e: kind-create mirror-image-setup kind-load quay-setup deploy chainsaw ## Run full e2e test pipeline.
 	$(CHAINSAW) test --test-dir ./e2e/ --config ./e2e/.chainsaw.yaml
 
 ##@ Dependencies

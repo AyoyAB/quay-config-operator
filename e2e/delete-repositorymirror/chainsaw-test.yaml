@@ -5,18 +5,6 @@ metadata:
 spec:
   description: Verify deleting a RepositoryMirror CR cleans up properly
   steps:
-    - name: create-secret
-      try:
-        - apply:
-            resource:
-              apiVersion: v1
-              kind: Secret
-              metadata:
-                name: quay-credentials
-              stringData:
-                host: http://quay-mock:8080
-                token: test-token
-                validateCerts: "false"
     - name: create-repositorymirror
       try:
         - apply:
@@ -28,8 +16,9 @@ spec:
               spec:
                 connSecretRef:
                   name: quay-credentials
+                  namespace: quay-system
                 name: testorg/testrepo
-                externalReference: registry.example.com/testrepo
+                externalReference: kind-registry:5000/ayoy/quay-config-operator
                 robotUsername: testorg+robot
     - name: assert-exists
       try:

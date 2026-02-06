@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: quay-mock
+  namespace: quay-system
+  labels:
+    app: quay-mock
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: quay-mock
+  template:
+    metadata:
+      labels:
+        app: quay-mock
+    spec:
+      containers:
+        - name: quay-mock
+          image: localhost:5001/quay-mock:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: QUAY_TOKEN
+              value: "e2e-test-token"
+            - name: PORT
+              value: "8080"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 1
+            periodSeconds: 3
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              memory: 32Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: quay-mock
+  namespace: quay-system
+spec:
+  selector:
+    app: quay-mock
+  ports:
+    - port: 80
+      targetPort: 8080
