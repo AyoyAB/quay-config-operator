@@ -1,0 +1,8 @@
+namespace: quay-config-operator-system
+
+namePrefix: quay-config-operator-
+
+resources:
+- ../crd
+- ../rbac
+- ../manager

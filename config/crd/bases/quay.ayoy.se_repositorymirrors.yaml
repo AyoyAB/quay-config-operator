@@ -1,0 +1,215 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.16.5
+  name: repositorymirrors.quay.ayoy.se
+spec:
+  group: quay.ayoy.se
+  names:
+    kind: RepositoryMirror
+    listKind: RepositoryMirrorList
+    plural: repositorymirrors
+    shortNames:
+    - repmirror
+    singular: repositorymirror
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .spec.name
+      name: Quay Name
+      type: string
+    - jsonPath: .status.conditions[?(@.type=='Successful')].status
+      name: Success
+      type: string
+    - jsonPath: .status.message
+      name: Message
+      priority: 1
+      type: string
+    - jsonPath: .status.conditions[?(@.type=='Running')].reason
+      name: State
+      type: string
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: RepositoryMirror is the Schema for the repositorymirrors API.
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: RepositoryMirrorSpec defines the desired state of RepositoryMirror.
+            properties:
+              connSecretRef:
+                description: ConnSecretRef references a Secret with `host`, `token`,
+                  and optional `validateCerts` keys.
+                properties:
+                  name:
+                    description: Name of the secret resource.
+                    type: string
+                  namespace:
+                    description: Namespace of the secret resource. Defaults to the
+                      namespace of the RepositoryMirror resource.
+                    type: string
+                required:
+                - name
+                type: object
+              externalReference:
+                description: ExternalReference is the path to the remote container
+                  repository to synchronize.
+                type: string
+              externalRegistryPassword:
+                description: ExternalRegistryPassword is the password for pulling
+                  from the remote registry.
+                type: string
+              externalRegistryUsername:
+                description: ExternalRegistryUsername is the username for pulling
+                  from the remote registry.
+                type: string
+              forceSync:
+                description: ForceSync triggers an immediate image synchronization.
+                type: boolean
+              httpProxy:
+                description: HttpProxy is the HTTP proxy for accessing the remote
+                  container registry.
+                type: string
+              httpsProxy:
+                description: HttpsProxy is the HTTPS proxy for accessing the remote
+                  container registry.
+                type: string
+              imageTags:
+                description: ImageTags is a list of image tags to be synchronized
+                  from the remote repository.
+                items:
+                  type: string
+                type: array
+              isEnabled:
+                description: IsEnabled defines whether the mirror configuration is
+                  active.
+                type: boolean
+              name:
+                description: Name is the repository in "namespace/shortname" format.
+                type: string
+              noProxy:
+                description: NoProxy is a comma-separated list of hosts for which
+                  the proxy should not be used.
+                type: string
+              preserveInQuayOnDeletion:
+                description: PreserveInQuayOnDeletion keeps the mirror configuration
+                  in Quay when the CR is deleted.
+                type: boolean
+              robotUsername:
+                description: RobotUsername is the robot account used for synchronization.
+                type: string
+              syncInterval:
+                description: SyncInterval is the synchronization interval. Supports
+                  s/m/h/d/w suffixes. Defaults to "86400s".
+                type: string
+              syncStartDate:
+                description: SyncStartDate is the ISO 8601 UTC date/time for the first
+                  synchronization.
+                type: string
+              unsignedImages:
+                description: UnsignedImages allows unsigned images to be mirrored.
+                type: boolean
+              verifyTls:
+                description: VerifyTls defines whether TLS of the external registry
+                  should be verified. Defaults to true.
+                type: boolean
+            required:
+            - connSecretRef
+            - name
+            type: object
+          status:
+            description: RepositoryMirrorStatus defines the observed state of RepositoryMirror.
+            properties:
+              conditions:
+                description: Conditions represent the latest available observations
+                  of the resource's state.
+                items:
+                  description: Condition contains details for one aspect of the current
+                    state of this API Resource.
+                  properties:
+                    lastTransitionTime:
+                      description: |-
+                        lastTransitionTime is the last time the condition transitioned from one status to another.
+                        This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: |-
+                        message is a human readable message indicating details about the transition.
+                        This may be an empty string.
+                      maxLength: 32768
+                      type: string
+                    observedGeneration:
+                      description: |-
+                        observedGeneration represents the .metadata.generation that the condition was set based upon.
+                        For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+                        with respect to the current state of the instance.
+                      format: int64
+                      minimum: 0
+                      type: integer
+                    reason:
+                      description: |-
+                        reason contains a programmatic identifier indicating the reason for the condition's last transition.
+                        Producers of specific condition types may define expected values and meanings for this field,
+                        and whether the values are considered a guaranteed API.
+                        The value should be a CamelCase string.
+                        This field may not be empty.
+                      maxLength: 1024
+                      minLength: 1
+                      pattern: ^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$
+                      type: string
+                    status:
+                      description: status of the condition, one of True, False, Unknown.
+                      enum:
+                      - "True"
+                      - "False"
+                      - Unknown
+                      type: string
+                    type:
+                      description: type of condition in CamelCase or in foo.example.com/CamelCase.
+                      maxLength: 316
+                      pattern: ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - message
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+              existInQuay:
+                description: ExistInQuay indicates whether the mirror configuration
+                  exists in Quay.
+                type: boolean
+              message:
+                description: Message provides additional information about the current
+                  state.
+                type: string
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}

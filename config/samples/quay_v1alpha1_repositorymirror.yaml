@@ -1,0 +1,20 @@
+apiVersion: quay.ayoy.se/v1alpha1
+kind: RepositoryMirror
+metadata:
+  name: repositorymirror-sample
+  namespace: default
+spec:
+  connSecretRef:
+    name: quay-credentials
+  name: production/ubi9
+  isEnabled: true
+  externalReference: registry.access.redhat.com/ubi9-micro
+  verifyTls: true
+  httpProxy: http://proxy.example.com:3128
+  noProxy: registry.access.redhat.com
+  robotUsername: production+robotprod1
+  imageTags:
+    - "9.4"
+    - "9.3"
+  syncInterval: "172800"
+  syncStartDate: "2023-05-25T21:06:00Z"
