@@ -20,6 +20,7 @@ import (
 	"context"
 	"fmt"
 	"net/url"
+	"regexp"
 	"strings"
 	"time"
 
@@ -414,11 +415,17 @@ func (r *RepositoryMirrorReconciler) setCondition(mirror *quayv1alpha1.Repositor
 	})
 }
 
+// validRepoComponent matches safe Quay namespace/repo names (alphanumeric, hyphens, underscores, dots).
+var validRepoComponent = regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9._-]*$`)
+
 // parseRepoName splits "namespace/shortname" into its components.
 func parseRepoName(name string) (string, string, error) {
 	parts := strings.SplitN(name, "/", 2)
 	if len(parts) != 2 || parts[0] == "" || parts[1] == "" {
 		return "", "", fmt.Errorf("repository name must be in 'namespace/shortname' format, got %q", name)
+	}
+	if !validRepoComponent.MatchString(parts[0]) || !validRepoComponent.MatchString(parts[1]) {
+		return "", "", fmt.Errorf("repository name contains invalid characters, got %q", name)
 	}
 	return parts[0], parts[1], nil
 }
