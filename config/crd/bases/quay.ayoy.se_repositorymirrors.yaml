@@ -65,6 +65,7 @@ spec:
                 properties:
                   name:
                     description: Name of the secret resource.
+                    minLength: 1
                     type: string
                 required:
                 - name
@@ -72,6 +73,7 @@ spec:
               externalReference:
                 description: ExternalReference is the path to the remote container
                   repository to synchronize.
+                maxLength: 1024
                 type: string
               externalRegistryCredentialsRef:
                 description: |-
@@ -80,6 +82,7 @@ spec:
                 properties:
                   name:
                     description: Name of the secret resource.
+                    minLength: 1
                     type: string
                 required:
                 - name
@@ -90,16 +93,19 @@ spec:
               httpProxy:
                 description: HttpProxy is the HTTP proxy for accessing the remote
                   container registry.
+                maxLength: 1024
                 type: string
               httpsProxy:
                 description: HttpsProxy is the HTTPS proxy for accessing the remote
                   container registry.
+                maxLength: 1024
                 type: string
               imageTags:
                 description: ImageTags is a list of image tags to be synchronized
                   from the remote repository.
                 items:
                   type: string
+                maxItems: 100
                 type: array
               isEnabled:
                 description: IsEnabled defines whether the mirror configuration is
@@ -107,10 +113,14 @@ spec:
                 type: boolean
               name:
                 description: Name is the repository in "namespace/shortname" format.
+                maxLength: 256
+                minLength: 3
+                pattern: ^[a-zA-Z0-9][a-zA-Z0-9._-]*/[a-zA-Z0-9][a-zA-Z0-9._-]*$
                 type: string
               noProxy:
                 description: NoProxy is a comma-separated list of hosts for which
                   the proxy should not be used.
+                maxLength: 2048
                 type: string
               preserveInQuayOnDeletion:
                 description: PreserveInQuayOnDeletion keeps the mirror configuration
@@ -118,14 +128,17 @@ spec:
                 type: boolean
               robotUsername:
                 description: RobotUsername is the robot account used for synchronization.
+                maxLength: 256
                 type: string
               syncInterval:
                 description: SyncInterval is the synchronization interval. Supports
                   s/m/h/d/w suffixes. Defaults to "86400s".
+                pattern: ^[0-9]+[smhdw]?$
                 type: string
               syncStartDate:
                 description: SyncStartDate is the ISO 8601 UTC date/time for the first
                   synchronization.
+                maxLength: 64
                 type: string
               unsignedImages:
                 description: UnsignedImages allows unsigned images to be mirrored.

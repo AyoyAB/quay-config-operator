@@ -459,39 +459,23 @@ var _ = Describe("RepositoryMirror Controller", func() {
 	})
 
 	Context("When the repository name is invalid", func() {
-		It("should set error condition", func() {
-			mirror := createMirrorCR(mirrorName+"-invalidname", quayv1alpha1.RepositoryMirrorSpec{
-				ConnSecretRef: quayv1alpha1.LocalSecretRef{
-					Name: secretName,
+		It("should be rejected by CRD validation", func() {
+			mirror := &quayv1alpha1.RepositoryMirror{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      mirrorName + "-invalidname",
+					Namespace: mirrorNamespace,
 				},
-				Name:              "invalid-no-slash",
-				ExternalReference: "registry.example.com/repo",
-				RobotUsername:     "myorg+robot",
-			})
-			defer func() {
-				Expect(k8sClient.Get(ctx, types.NamespacedName{Name: mirror.Name, Namespace: mirrorNamespace}, mirror)).To(Succeed())
-				mirror.Finalizers = nil
-				Expect(k8sClient.Update(ctx, mirror)).To(Succeed())
-				Expect(k8sClient.Delete(ctx, mirror)).To(Succeed())
-			}()
-
-			_, err := reconciler.Reconcile(ctx, ctrl.Request{
-				NamespacedName: types.NamespacedName{Name: mirror.Name, Namespace: mirrorNamespace},
-			})
-			Expect(err).NotTo(HaveOccurred())
-
-			var updated quayv1alpha1.RepositoryMirror
-			Expect(k8sClient.Get(ctx, types.NamespacedName{Name: mirror.Name, Namespace: mirrorNamespace}, &updated)).To(Succeed())
-
-			found := false
-			for _, c := range updated.Status.Conditions {
-				if c.Type == conditionSuccess {
-					found = true
-					Expect(c.Status).To(Equal(metav1.ConditionFalse))
-					Expect(c.Reason).To(Equal("InvalidName"))
-				}
+				Spec: quayv1alpha1.RepositoryMirrorSpec{
+					ConnSecretRef: quayv1alpha1.LocalSecretRef{
+						Name: secretName,
+					},
+					Name:              "invalid-no-slash",
+					ExternalReference: "registry.example.com/repo",
+					RobotUsername:     "myorg+robot",
+				},
 			}
-			Expect(found).To(BeTrue(), "expected Successful condition to be set")
+			err := k8sClient.Create(ctx, mirror)
+			Expect(err).To(HaveOccurred(), "expected CRD validation to reject invalid name")
 		})
 	})
 

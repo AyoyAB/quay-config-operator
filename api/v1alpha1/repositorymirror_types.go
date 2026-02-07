@@ -23,6 +23,7 @@ import (
 // LocalSecretRef references a Secret in the same namespace as the referencing resource.
 type LocalSecretRef struct {
 	// Name of the secret resource.
+	// +kubebuilder:validation:MinLength=1
 	Name string `json:"name"`
 }
 
@@ -33,14 +34,19 @@ type RepositoryMirrorSpec struct {
 	ConnSecretRef LocalSecretRef `json:"connSecretRef"`
 
 	// Name is the repository in "namespace/shortname" format.
+	// +kubebuilder:validation:MinLength=3
+	// +kubebuilder:validation:MaxLength=256
+	// +kubebuilder:validation:Pattern=`^[a-zA-Z0-9][a-zA-Z0-9._-]*/[a-zA-Z0-9][a-zA-Z0-9._-]*$`
 	Name string `json:"name"`
 
 	// ExternalReference is the path to the remote container repository to synchronize.
 	// +optional
+	// +kubebuilder:validation:MaxLength=1024
 	ExternalReference string `json:"externalReference,omitempty"`
 
 	// RobotUsername is the robot account used for synchronization.
 	// +optional
+	// +kubebuilder:validation:MaxLength=256
 	RobotUsername string `json:"robotUsername,omitempty"`
 
 	// IsEnabled defines whether the mirror configuration is active.
@@ -49,14 +55,17 @@ type RepositoryMirrorSpec struct {
 
 	// ImageTags is a list of image tags to be synchronized from the remote repository.
 	// +optional
+	// +kubebuilder:validation:MaxItems=100
 	ImageTags []string `json:"imageTags,omitempty"`
 
 	// SyncInterval is the synchronization interval. Supports s/m/h/d/w suffixes. Defaults to "86400s".
 	// +optional
+	// +kubebuilder:validation:Pattern=`^[0-9]+[smhdw]?$`
 	SyncInterval string `json:"syncInterval,omitempty"`
 
 	// SyncStartDate is the ISO 8601 UTC date/time for the first synchronization.
 	// +optional
+	// +kubebuilder:validation:MaxLength=64
 	SyncStartDate string `json:"syncStartDate,omitempty"`
 
 	// ExternalRegistryCredentialsRef references a Secret with `username` and `password` keys
@@ -66,14 +75,17 @@ type RepositoryMirrorSpec struct {
 
 	// HttpProxy is the HTTP proxy for accessing the remote container registry.
 	// +optional
+	// +kubebuilder:validation:MaxLength=1024
 	HttpProxy string `json:"httpProxy,omitempty"`
 
 	// HttpsProxy is the HTTPS proxy for accessing the remote container registry.
 	// +optional
+	// +kubebuilder:validation:MaxLength=1024
 	HttpsProxy string `json:"httpsProxy,omitempty"`
 
 	// NoProxy is a comma-separated list of hosts for which the proxy should not be used.
 	// +optional
+	// +kubebuilder:validation:MaxLength=2048
 	NoProxy string `json:"noProxy,omitempty"`
 
 	// VerifyTls defines whether TLS of the external registry should be verified. Defaults to true.
