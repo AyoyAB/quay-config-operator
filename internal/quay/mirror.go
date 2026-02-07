@@ -25,6 +25,13 @@ import (
 	"strings"
 )
 
+const (
+	// maxResponseBody is the maximum size of a Quay API error response body (1 MiB).
+	maxResponseBody = 1 << 20
+	// maxJSONResponse is the maximum size of a Quay API JSON success response (10 MiB).
+	maxJSONResponse = 10 << 20
+)
+
 // GetMirror retrieves the mirror configuration for a repository.
 // Returns nil, nil if the mirror does not exist (404).
 func (c *Client) GetMirror(ctx context.Context, namespace, repo string) (*MirrorConfig, error) {
@@ -45,12 +52,12 @@ func (c *Client) GetMirror(ctx context.Context, namespace, repo string) (*Mirror
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		body, _ := io.ReadAll(resp.Body)
+		body, _ := io.ReadAll(io.LimitReader(resp.Body, maxResponseBody))
 		return nil, fmt.Errorf("unexpected status %d: %s", resp.StatusCode, string(body))
 	}
 
 	var config MirrorConfig
-	if err := json.NewDecoder(resp.Body).Decode(&config); err != nil {
+	if err := json.NewDecoder(io.LimitReader(resp.Body, maxJSONResponse)).Decode(&config); err != nil {
 		return nil, fmt.Errorf("decoding response: %w", err)
 	}
 
@@ -81,7 +88,7 @@ func (c *Client) CreateMirror(ctx context.Context, namespace, repo string, creat
 	}
 
 	if resp.StatusCode != http.StatusCreated && resp.StatusCode != http.StatusOK {
-		respBody, _ := io.ReadAll(resp.Body)
+		respBody, _ := io.ReadAll(io.LimitReader(resp.Body, maxResponseBody))
 		return fmt.Errorf("unexpected status %d: %s", resp.StatusCode, string(respBody))
 	}
 
@@ -108,7 +115,7 @@ func (c *Client) UpdateMirror(ctx context.Context, namespace, repo string, updat
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusCreated {
-		respBody, _ := io.ReadAll(resp.Body)
+		respBody, _ := io.ReadAll(io.LimitReader(resp.Body, maxResponseBody))
 		return fmt.Errorf("unexpected status %d: %s", resp.StatusCode, string(respBody))
 	}
 
@@ -130,7 +137,7 @@ func (c *Client) SyncNow(ctx context.Context, namespace, repo string) error {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusNoContent {
-		respBody, _ := io.ReadAll(resp.Body)
+		respBody, _ := io.ReadAll(io.LimitReader(resp.Body, maxResponseBody))
 		return fmt.Errorf("unexpected status %d: %s", resp.StatusCode, string(respBody))
 	}
 

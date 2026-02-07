@@ -1177,6 +1177,78 @@ func TestValidateSpec(t *testing.T) {
 			},
 			wantErr: false,
 		},
+		{
+			name: "imageTags with valid tags",
+			spec: quayv1alpha1.RepositoryMirrorSpec{
+				Name:      "org/repo",
+				ImageTags: []string{"latest", "v1.0", "v2.0-rc1"},
+			},
+			wantErr: false,
+		},
+		{
+			name: "imageTags with newline",
+			spec: quayv1alpha1.RepositoryMirrorSpec{
+				Name:      "org/repo",
+				ImageTags: []string{"latest\nmalicious"},
+			},
+			wantErr: true,
+		},
+		{
+			name: "imageTags with empty string",
+			spec: quayv1alpha1.RepositoryMirrorSpec{
+				Name:      "org/repo",
+				ImageTags: []string{""},
+			},
+			wantErr: true,
+		},
+		{
+			name: "syncStartDate valid ISO 8601",
+			spec: quayv1alpha1.RepositoryMirrorSpec{
+				Name:          "org/repo",
+				SyncStartDate: "2024-01-15T10:30:00Z",
+			},
+			wantErr: false,
+		},
+		{
+			name: "syncStartDate with injection chars",
+			spec: quayv1alpha1.RepositoryMirrorSpec{
+				Name:          "org/repo",
+				SyncStartDate: "2024-01-15T10:30:00Z; DROP TABLE",
+			},
+			wantErr: true,
+		},
+		{
+			name: "syncStartDate invalid format",
+			spec: quayv1alpha1.RepositoryMirrorSpec{
+				Name:          "org/repo",
+				SyncStartDate: "not-a-date",
+			},
+			wantErr: true,
+		},
+		{
+			name: "noProxy valid list",
+			spec: quayv1alpha1.RepositoryMirrorSpec{
+				Name:    "org/repo",
+				NoProxy: "localhost,127.0.0.1,.example.com",
+			},
+			wantErr: false,
+		},
+		{
+			name: "noProxy with newline",
+			spec: quayv1alpha1.RepositoryMirrorSpec{
+				Name:    "org/repo",
+				NoProxy: "localhost\nmalicious",
+			},
+			wantErr: true,
+		},
+		{
+			name: "noProxy with null byte",
+			spec: quayv1alpha1.RepositoryMirrorSpec{
+				Name:    "org/repo",
+				NoProxy: "localhost\x00malicious",
+			},
+			wantErr: true,
+		},
 	}
 
 	for _, tt := range tests {

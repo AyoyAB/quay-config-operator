@@ -167,6 +167,49 @@ func TestUpdateMirror_Success(t *testing.T) {
 	}
 }
 
+func TestGetMirror_LargeErrorBody(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusInternalServerError)
+		// Write 2 MiB of data (larger than maxResponseBody=1 MiB)
+		buf := make([]byte, 2<<20)
+		for i := range buf {
+			buf[i] = 'A'
+		}
+		_, _ = w.Write(buf)
+	}))
+	defer server.Close()
+
+	client := NewClient(server.URL, "test-token")
+	_, err := client.GetMirror(context.Background(), "testns", "testrepo")
+	if err == nil {
+		t.Fatal("expected error for 500 status")
+	}
+	// The error message body should be truncated to maxResponseBody (1 MiB)
+	errMsg := err.Error()
+	// 1 MiB = 1048576 bytes; the error prefix is ~21 chars ("unexpected status 500: ")
+	if len(errMsg) > maxResponseBody+100 {
+		t.Errorf("error message too large: got %d bytes, want at most ~%d", len(errMsg), maxResponseBody+100)
+	}
+}
+
+func TestGetMirror_ErrorStatus(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusInternalServerError)
+		_, _ = w.Write([]byte("internal server error"))
+	}))
+	defer server.Close()
+
+	client := NewClient(server.URL, "test-token")
+	_, err := client.GetMirror(context.Background(), "testns", "testrepo")
+	if err == nil {
+		t.Fatal("expected error for 500 status")
+	}
+	expected := "unexpected status 500: internal server error"
+	if err.Error() != expected {
+		t.Errorf("error = %q, want %q", err.Error(), expected)
+	}
+}
+
 func TestSyncNow_Success(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/api/v1/repository/testns/testrepo/mirror/sync-now" {

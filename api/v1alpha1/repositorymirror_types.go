@@ -47,6 +47,7 @@ type RepositoryMirrorSpec struct {
 	// RobotUsername is the robot account used for synchronization.
 	// +optional
 	// +kubebuilder:validation:MaxLength=256
+	// +kubebuilder:validation:Pattern=`^[a-zA-Z0-9][a-zA-Z0-9._+-]*$`
 	RobotUsername string `json:"robotUsername,omitempty"`
 
 	// IsEnabled defines whether the mirror configuration is active.
@@ -56,6 +57,8 @@ type RepositoryMirrorSpec struct {
 	// ImageTags is a list of image tags to be synchronized from the remote repository.
 	// +optional
 	// +kubebuilder:validation:MaxItems=100
+	// +kubebuilder:validation:items:MaxLength=128
+	// +kubebuilder:validation:items:Pattern=`^[a-zA-Z0-9][a-zA-Z0-9._-]*$`
 	ImageTags []string `json:"imageTags,omitempty"`
 
 	// SyncInterval is the synchronization interval. Supports s/m/h/d/w suffixes. Defaults to "86400s".
@@ -66,6 +69,7 @@ type RepositoryMirrorSpec struct {
 	// SyncStartDate is the ISO 8601 UTC date/time for the first synchronization.
 	// +optional
 	// +kubebuilder:validation:MaxLength=64
+	// +kubebuilder:validation:Pattern=`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$`
 	SyncStartDate string `json:"syncStartDate,omitempty"`
 
 	// ExternalRegistryCredentialsRef references a Secret with `username` and `password` keys
@@ -88,6 +92,7 @@ type RepositoryMirrorSpec struct {
 	// NoProxy is a comma-separated list of hosts for which the proxy should not be used.
 	// +optional
 	// +kubebuilder:validation:MaxLength=2048
+	// +kubebuilder:validation:Pattern=`^[a-zA-Z0-9.*,:/_ -]+$`
 	NoProxy string `json:"noProxy,omitempty"`
 
 	// VerifyTls defines whether TLS of the external registry should be verified. Defaults to true.

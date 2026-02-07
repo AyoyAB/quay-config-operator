@@ -441,6 +441,9 @@ func parseRepoName(name string) (string, string, error) {
 	return parts[0], parts[1], nil
 }
 
+// validImageTag matches safe container image tag characters.
+var validImageTag = regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9._-]*$`)
+
 // validateSpec validates spec fields that are passed through to Quay.
 func validateSpec(spec *quayv1alpha1.RepositoryMirrorSpec) error {
 	if spec.ExternalReference != "" && strings.Contains(spec.ExternalReference, "://") {
@@ -451,6 +454,19 @@ func validateSpec(spec *quayv1alpha1.RepositoryMirrorSpec) error {
 	}
 	if err := validateProxyURL(spec.HttpsProxy, "httpsProxy"); err != nil {
 		return err
+	}
+	for _, tag := range spec.ImageTags {
+		if !validImageTag.MatchString(tag) {
+			return fmt.Errorf("imageTags contains invalid tag")
+		}
+	}
+	if spec.SyncStartDate != "" {
+		if _, err := time.Parse(time.RFC3339, spec.SyncStartDate); err != nil {
+			return fmt.Errorf("syncStartDate is not a valid RFC 3339 timestamp")
+		}
+	}
+	if spec.NoProxy != "" && strings.ContainsAny(spec.NoProxy, "\n\r\x00") {
+		return fmt.Errorf("noProxy contains invalid control characters")
 	}
 	return nil
 }

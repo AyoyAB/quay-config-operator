@@ -106,6 +106,8 @@ spec:
                 description: ImageTags is a list of image tags to be synchronized
                   from the remote repository.
                 items:
+                  maxLength: 128
+                  pattern: ^[a-zA-Z0-9][a-zA-Z0-9._-]*$
                   type: string
                 maxItems: 100
                 type: array
@@ -123,6 +125,7 @@ spec:
                 description: NoProxy is a comma-separated list of hosts for which
                   the proxy should not be used.
                 maxLength: 2048
+                pattern: ^[a-zA-Z0-9.*,:/_ -]+$
                 type: string
               preserveInQuayOnDeletion:
                 description: PreserveInQuayOnDeletion keeps the mirror configuration
@@ -131,6 +134,7 @@ spec:
               robotUsername:
                 description: RobotUsername is the robot account used for synchronization.
                 maxLength: 256
+                pattern: ^[a-zA-Z0-9][a-zA-Z0-9._+-]*$
                 type: string
               syncInterval:
                 description: SyncInterval is the synchronization interval. Supports
@@ -141,6 +145,7 @@ spec:
                 description: SyncStartDate is the ISO 8601 UTC date/time for the first
                   synchronization.
                 maxLength: 64
+                pattern: ^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$
                 type: string
               unsignedImages:
                 description: UnsignedImages allows unsigned images to be mirrored.
