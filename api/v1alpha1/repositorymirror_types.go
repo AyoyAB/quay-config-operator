@@ -36,7 +36,7 @@ type RepositoryMirrorSpec struct {
 	// Name is the repository in "namespace/shortname" format.
 	// +kubebuilder:validation:MinLength=3
 	// +kubebuilder:validation:MaxLength=256
-	// +kubebuilder:validation:Pattern=`^[a-zA-Z0-9][a-zA-Z0-9._-]*/[a-zA-Z0-9][a-zA-Z0-9._-]*$`
+	// +kubebuilder:validation:Pattern=`^[a-zA-Z0-9]+([._-][a-zA-Z0-9]+)*/[a-zA-Z0-9]+([._-][a-zA-Z0-9]+)*$`
 	Name string `json:"name"`
 
 	// ExternalReference is the path to the remote container repository to synchronize.

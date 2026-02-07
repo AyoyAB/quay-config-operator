@@ -425,8 +425,9 @@ func (r *RepositoryMirrorReconciler) setCondition(mirror *quayv1alpha1.Repositor
 	})
 }
 
-// validRepoComponent matches safe Quay namespace/repo names (alphanumeric, hyphens, underscores, dots).
-var validRepoComponent = regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9._-]*$`)
+// validRepoComponent matches safe Quay namespace/repo names: alphanumeric segments
+// separated by single dots, hyphens, or underscores (no trailing/consecutive separators).
+var validRepoComponent = regexp.MustCompile(`^[a-zA-Z0-9]+([._-][a-zA-Z0-9]+)*$`)
 
 // parseRepoName splits "namespace/shortname" into its components.
 func parseRepoName(name string) (string, string, error) {

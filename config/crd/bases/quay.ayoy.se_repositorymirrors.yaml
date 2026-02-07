@@ -117,7 +117,7 @@ spec:
                 description: Name is the repository in "namespace/shortname" format.
                 maxLength: 256
                 minLength: 3
-                pattern: ^[a-zA-Z0-9][a-zA-Z0-9._-]*/[a-zA-Z0-9][a-zA-Z0-9._-]*$
+                pattern: ^[a-zA-Z0-9]+([._-][a-zA-Z0-9]+)*/[a-zA-Z0-9]+([._-][a-zA-Z0-9]+)*$
                 type: string
               noProxy:
                 description: NoProxy is a comma-separated list of hosts for which
