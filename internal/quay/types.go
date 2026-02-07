@@ -16,6 +16,8 @@ limitations under the License.
 
 package quay
 
+import "fmt"
+
 // MirrorConfig represents the GET response from the Quay mirror API.
 type MirrorConfig struct {
 	IsEnabled                bool                   `json:"is_enabled"`
@@ -61,6 +63,14 @@ type MirrorCreateRequest struct {
 	ExternalRegistryPassword string                  `json:"external_registry_password,omitempty"`
 }
 
+// String redacts the external registry password to prevent accidental exposure in logs.
+func (r MirrorCreateRequest) String() string {
+	type alias MirrorCreateRequest
+	redacted := alias(r)
+	redacted.ExternalRegistryPassword = "[REDACTED]"
+	return fmt.Sprintf("%+v", redacted)
+}
+
 // MirrorUpdateRequest is the PUT body for updating a mirror configuration.
 type MirrorUpdateRequest struct {
 	IsEnabled                *bool                   `json:"is_enabled,omitempty"`
@@ -72,4 +82,12 @@ type MirrorUpdateRequest struct {
 	RootRule                 *RootRule               `json:"root_rule,omitempty"`
 	ExternalRegistryUsername string                  `json:"external_registry_username,omitempty"`
 	ExternalRegistryPassword string                  `json:"external_registry_password,omitempty"`
+}
+
+// String redacts the external registry password to prevent accidental exposure in logs.
+func (r MirrorUpdateRequest) String() string {
+	type alias MirrorUpdateRequest
+	redacted := alias(r)
+	redacted.ExternalRegistryPassword = "[REDACTED]"
+	return fmt.Sprintf("%+v", redacted)
 }
