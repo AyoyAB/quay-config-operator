@@ -77,7 +77,7 @@ func (r *RepositoryMirrorReconciler) Reconcile(ctx context.Context, req ctrl.Req
 	quayClient, err := r.buildQuayClient(ctx, &mirror)
 	if err != nil {
 		logger.Error(err, "failed to build Quay client")
-		r.setCondition(&mirror, conditionSuccess, metav1.ConditionFalse, "SecretError", err.Error())
+		r.setCondition(&mirror, conditionSuccess, metav1.ConditionFalse, "SecretError", "Failed to build Quay client from connection secret")
 		if updateErr := r.Status().Update(ctx, &mirror); updateErr != nil {
 			logger.Error(updateErr, "failed to update status")
 		}
@@ -88,7 +88,7 @@ func (r *RepositoryMirrorReconciler) Reconcile(ctx context.Context, req ctrl.Req
 	namespace, repoName, err := parseRepoName(mirror.Spec.Name)
 	if err != nil {
 		logger.Error(err, "invalid repository name")
-		r.setCondition(&mirror, conditionSuccess, metav1.ConditionFalse, "InvalidName", err.Error())
+		r.setCondition(&mirror, conditionSuccess, metav1.ConditionFalse, "InvalidName", "Invalid repository name format")
 		if updateErr := r.Status().Update(ctx, &mirror); updateErr != nil {
 			logger.Error(updateErr, "failed to update status")
 		}
@@ -159,8 +159,8 @@ func (r *RepositoryMirrorReconciler) reconcileMirror(
 	existing, err := quayClient.GetMirror(ctx, namespace, repoName)
 	if err != nil {
 		logger.Error(err, "failed to get mirror from Quay")
-		r.setCondition(mirror, conditionSuccess, metav1.ConditionFalse, "QuayAPIError", err.Error())
-		mirror.Status.Message = err.Error()
+		r.setCondition(mirror, conditionSuccess, metav1.ConditionFalse, "QuayAPIError", "Failed to get mirror configuration from Quay")
+		mirror.Status.Message = "Failed to get mirror configuration from Quay"
 		if updateErr := r.Status().Update(ctx, mirror); updateErr != nil {
 			logger.Error(updateErr, "failed to update status")
 		}
@@ -171,8 +171,8 @@ func (r *RepositoryMirrorReconciler) reconcileMirror(
 		// Create mirror
 		if err := r.createMirror(ctx, mirror, quayClient, namespace, repoName); err != nil {
 			logger.Error(err, "failed to create mirror in Quay")
-			r.setCondition(mirror, conditionSuccess, metav1.ConditionFalse, "CreateError", err.Error())
-			mirror.Status.Message = err.Error()
+			r.setCondition(mirror, conditionSuccess, metav1.ConditionFalse, "CreateError", "Failed to create mirror in Quay")
+			mirror.Status.Message = "Failed to create mirror in Quay"
 			if updateErr := r.Status().Update(ctx, mirror); updateErr != nil {
 				logger.Error(updateErr, "failed to update status")
 			}
@@ -183,8 +183,8 @@ func (r *RepositoryMirrorReconciler) reconcileMirror(
 		// Update mirror
 		if err := r.updateMirror(ctx, mirror, quayClient, namespace, repoName); err != nil {
 			logger.Error(err, "failed to update mirror in Quay")
-			r.setCondition(mirror, conditionSuccess, metav1.ConditionFalse, "UpdateError", err.Error())
-			mirror.Status.Message = err.Error()
+			r.setCondition(mirror, conditionSuccess, metav1.ConditionFalse, "UpdateError", "Failed to update mirror in Quay")
+			mirror.Status.Message = "Failed to update mirror in Quay"
 			if updateErr := r.Status().Update(ctx, mirror); updateErr != nil {
 				logger.Error(updateErr, "failed to update status")
 			}
@@ -197,8 +197,8 @@ func (r *RepositoryMirrorReconciler) reconcileMirror(
 	if mirror.Spec.ForceSync != nil && *mirror.Spec.ForceSync {
 		if err := quayClient.SyncNow(ctx, namespace, repoName); err != nil {
 			logger.Error(err, "failed to trigger sync")
-			r.setCondition(mirror, conditionSuccess, metav1.ConditionFalse, "SyncError", err.Error())
-			mirror.Status.Message = err.Error()
+			r.setCondition(mirror, conditionSuccess, metav1.ConditionFalse, "SyncError", "Failed to trigger immediate sync")
+			mirror.Status.Message = "Failed to trigger immediate sync"
 			if updateErr := r.Status().Update(ctx, mirror); updateErr != nil {
 				logger.Error(updateErr, "failed to update status")
 			}
