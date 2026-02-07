@@ -95,6 +95,16 @@ func (r *RepositoryMirrorReconciler) Reconcile(ctx context.Context, req ctrl.Req
 		return ctrl.Result{}, nil // Don't requeue for invalid name
 	}
 
+	// Validate spec fields that are passed through to Quay
+	if err := validateSpec(&mirror.Spec); err != nil {
+		logger.Error(err, "invalid spec")
+		r.setCondition(&mirror, conditionSuccess, metav1.ConditionFalse, "InvalidSpec", "Invalid spec field value")
+		if updateErr := r.Status().Update(ctx, &mirror); updateErr != nil {
+			logger.Error(updateErr, "failed to update status")
+		}
+		return ctrl.Result{}, nil // Don't requeue for invalid spec
+	}
+
 	// Handle deletion
 	if !mirror.ObjectMeta.DeletionTimestamp.IsZero() {
 		return r.handleDeletion(ctx, &mirror, quayClient, namespace, repoName)
@@ -428,6 +438,38 @@ func parseRepoName(name string) (string, string, error) {
 		return "", "", fmt.Errorf("repository name contains invalid characters, got %q", name)
 	}
 	return parts[0], parts[1], nil
+}
+
+// validateSpec validates spec fields that are passed through to Quay.
+func validateSpec(spec *quayv1alpha1.RepositoryMirrorSpec) error {
+	if spec.ExternalReference != "" && strings.Contains(spec.ExternalReference, "://") {
+		return fmt.Errorf("externalReference must not contain a URL scheme")
+	}
+	if err := validateProxyURL(spec.HttpProxy, "httpProxy"); err != nil {
+		return err
+	}
+	if err := validateProxyURL(spec.HttpsProxy, "httpsProxy"); err != nil {
+		return err
+	}
+	return nil
+}
+
+// validateProxyURL checks that a proxy URL uses an http or https scheme.
+func validateProxyURL(proxyURL, fieldName string) error {
+	if proxyURL == "" {
+		return nil
+	}
+	u, err := url.Parse(proxyURL)
+	if err != nil {
+		return fmt.Errorf("%s is not a valid URL", fieldName)
+	}
+	if u.Scheme != "http" && u.Scheme != "https" {
+		return fmt.Errorf("%s must use http or https scheme", fieldName)
+	}
+	if u.Host == "" {
+		return fmt.Errorf("%s is missing host", fieldName)
+	}
+	return nil
 }
 
 // SetupWithManager sets up the controller with the Manager.

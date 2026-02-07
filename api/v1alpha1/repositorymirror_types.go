@@ -76,11 +76,13 @@ type RepositoryMirrorSpec struct {
 	// HttpProxy is the HTTP proxy for accessing the remote container registry.
 	// +optional
 	// +kubebuilder:validation:MaxLength=1024
+	// +kubebuilder:validation:Pattern=`^https?://.+$`
 	HttpProxy string `json:"httpProxy,omitempty"`
 
 	// HttpsProxy is the HTTPS proxy for accessing the remote container registry.
 	// +optional
 	// +kubebuilder:validation:MaxLength=1024
+	// +kubebuilder:validation:Pattern=`^https?://.+$`
 	HttpsProxy string `json:"httpsProxy,omitempty"`
 
 	// NoProxy is a comma-separated list of hosts for which the proxy should not be used.

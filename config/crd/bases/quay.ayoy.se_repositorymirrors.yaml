@@ -94,11 +94,13 @@ spec:
                 description: HttpProxy is the HTTP proxy for accessing the remote
                   container registry.
                 maxLength: 1024
+                pattern: ^https?://.+$
                 type: string
               httpsProxy:
                 description: HttpsProxy is the HTTPS proxy for accessing the remote
                   container registry.
                 maxLength: 1024
+                pattern: ^https?://.+$
                 type: string
               imageTags:
                 description: ImageTags is a list of image tags to be synchronized
