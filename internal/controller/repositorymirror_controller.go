@@ -59,7 +59,7 @@ type RepositoryMirrorReconciler struct {
 // +kubebuilder:rbac:groups=quay.ayoy.se,resources=repositorymirrors,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=quay.ayoy.se,resources=repositorymirrors/status,verbs=get;update;patch
 // +kubebuilder:rbac:groups=quay.ayoy.se,resources=repositorymirrors/finalizers,verbs=update
-// +kubebuilder:rbac:groups="",resources=secrets,verbs=get
+// +kubebuilder:rbac:groups="",resources=secrets,verbs=get;list;watch
 
 // Reconcile handles reconciliation of RepositoryMirror custom resources.
 func (r *RepositoryMirrorReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
