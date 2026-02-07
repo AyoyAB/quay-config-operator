@@ -1,0 +1,16 @@
+{{ template "chart.header" . }}
+
+{{ template "chart.description" . }}
+
+{{ template "chart.versionBadge" . }}{{ template "chart.typeBadge" . }}{{ template "chart.appVersionBadge" . }}
+
+## Installation
+
+```console
+helm repo add quay-config-operator https://ayoy.github.io/quay-config-operator
+helm install quay-config-operator quay-config-operator/quay-config-operator
+```
+
+{{ template "chart.requirementsSection" . }}
+
+{{ template "chart.valuesSection" . }}

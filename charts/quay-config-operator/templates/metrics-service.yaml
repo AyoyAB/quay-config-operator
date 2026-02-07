@@ -1,0 +1,19 @@
+{{- if .Values.metrics.enabled -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "quay-config-operator.fullname" . }}-metrics
+  labels:
+    control-plane: controller-manager
+    {{- include "quay-config-operator.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  selector:
+    control-plane: controller-manager
+    {{- include "quay-config-operator.selectorLabels" . | nindent 4 }}
+  ports:
+  - name: metrics
+    port: {{ .Values.metrics.service.port }}
+    targetPort: metrics
+    protocol: TCP
+{{- end }}

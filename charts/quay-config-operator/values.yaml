@@ -1,0 +1,73 @@
+# -- Number of replicas for the controller deployment
+replicaCount: 1
+
+image:
+  # -- Container image repository
+  repository: ghcr.io/ayoy/quay-config-operator
+  # -- Image pull policy
+  pullPolicy: IfNotPresent
+  # -- Image tag (defaults to chart appVersion if not set)
+  tag: ""
+
+# -- Image pull secrets for private registries
+imagePullSecrets: []
+
+# -- Override the name of the chart
+nameOverride: ""
+
+# -- Override the full name of the resources
+fullnameOverride: ""
+
+serviceAccount:
+  # -- Enable service account creation
+  create: true
+  # -- Annotations to add to the service account
+  annotations: {}
+  # -- Service account name (generated if not set)
+  name: ""
+
+leaderElection:
+  # -- Enable leader election for high availability
+  enabled: true
+
+metrics:
+  # -- Enable metrics service
+  enabled: true
+  service:
+    # -- Metrics service port
+    port: 8080
+
+# -- Resource limits and requests for the controller
+resources:
+  limits:
+    cpu: 500m
+    memory: 128Mi
+  requests:
+    cpu: 10m
+    memory: 64Mi
+
+# -- Node selector for pod assignment
+nodeSelector: {}
+
+# -- Tolerations for pod assignment
+tolerations: []
+
+# -- Affinity rules for pod assignment
+affinity: {}
+
+# -- Annotations to add to the pod
+podAnnotations: {}
+
+# -- Security context for the pod
+podSecurityContext:
+  runAsNonRoot: true
+  seccompProfile:
+    type: RuntimeDefault
+
+# -- Security context for the controller container
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop:
+      - ALL

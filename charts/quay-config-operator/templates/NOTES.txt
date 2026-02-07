@@ -1,0 +1,30 @@
+Thank you for installing {{ .Chart.Name }}.
+
+Your release is named {{ .Release.Name }}.
+
+To learn more about the release, try:
+
+  $ helm status {{ .Release.Name }} -n {{ .Release.Namespace }}
+  $ helm get all {{ .Release.Name }} -n {{ .Release.Namespace }}
+
+The Quay Config Operator is now running in your cluster.
+
+To create a RepositoryMirror resource, you need to:
+
+1. Create a Secret with Quay credentials:
+   kubectl create secret generic quay-credentials \
+     --from-literal=host=quay.example.com \
+     --from-literal=token=YOUR_TOKEN
+
+2. Apply a RepositoryMirror custom resource:
+   apiVersion: quay.ayoy.se/v1alpha1
+   kind: RepositoryMirror
+   metadata:
+     name: my-mirror
+   spec:
+     name: myorg/myrepo
+     connSecretRef:
+       name: quay-credentials
+     externalReference: registry.example.com/namespace/repository
+
+For more information, visit: {{ .Chart.Home }}

@@ -37,6 +37,35 @@ jobs:
       - name: Build Docker image
         run: make docker-build
 
+  helm-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install helm-docs
+        run: |
+          HELM_DOCS_VERSION=1.14.2
+          curl -sSL "https://github.com/norwoodj/helm-docs/releases/download/v${HELM_DOCS_VERSION}/helm-docs_${HELM_DOCS_VERSION}_Linux_x86_64.tar.gz" \
+            | tar xz -C /usr/local/bin helm-docs
+
+      - name: Run helm-docs
+        run: helm-docs
+
+      - name: Check README is up to date
+        run: |
+          if ! git diff --exit-code; then
+            echo "::error::Helm chart README is out of date. Run 'helm-docs' locally and commit the changes."
+            exit 1
+          fi
+
+      - name: Check CRD is in sync
+        run: |
+          if ! diff config/crd/bases/quay.ayoy.se_repositorymirrors.yaml \
+                    charts/quay-config-operator/templates/crd.yaml; then
+            echo "::error::Helm chart CRD is out of sync with generated CRD. Copy config/crd/bases/quay.ayoy.se_repositorymirrors.yaml to charts/quay-config-operator/templates/crd.yaml and commit."
+            exit 1
+          fi
+
   e2e:
     runs-on: ubuntu-latest
     needs: build-and-test
