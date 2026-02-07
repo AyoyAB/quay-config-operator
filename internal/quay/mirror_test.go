@@ -17,6 +17,7 @@ limitations under the License.
 package quay
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -52,7 +53,7 @@ func TestGetMirror_Success(t *testing.T) {
 	defer server.Close()
 
 	client := NewClient(server.URL, "test-token")
-	result, err := client.GetMirror("testns", "testrepo")
+	result, err := client.GetMirror(context.Background(), "testns", "testrepo")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -77,7 +78,7 @@ func TestGetMirror_NotFound(t *testing.T) {
 	defer server.Close()
 
 	client := NewClient(server.URL, "test-token")
-	result, err := client.GetMirror("testns", "testrepo")
+	result, err := client.GetMirror(context.Background(), "testns", "testrepo")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -108,7 +109,7 @@ func TestCreateMirror_Success(t *testing.T) {
 	defer server.Close()
 
 	client := NewClient(server.URL, "test-token")
-	err := client.CreateMirror("testns", "testrepo", &MirrorCreateRequest{
+	err := client.CreateMirror(context.Background(), "testns", "testrepo", &MirrorCreateRequest{
 		IsEnabled:         true,
 		ExternalReference: "registry.example.com/repo",
 		SyncInterval:      86400,
@@ -127,7 +128,7 @@ func TestCreateMirror_Conflict(t *testing.T) {
 	defer server.Close()
 
 	client := NewClient(server.URL, "test-token")
-	err := client.CreateMirror("testns", "testrepo", &MirrorCreateRequest{
+	err := client.CreateMirror(context.Background(), "testns", "testrepo", &MirrorCreateRequest{
 		ExternalReference: "registry.example.com/repo",
 		SyncInterval:      86400,
 		SyncStartDate:     "2023-01-01T00:00:00Z",
@@ -158,7 +159,7 @@ func TestUpdateMirror_Success(t *testing.T) {
 
 	isEnabled := true
 	client := NewClient(server.URL, "test-token")
-	err := client.UpdateMirror("testns", "testrepo", &MirrorUpdateRequest{
+	err := client.UpdateMirror(context.Background(), "testns", "testrepo", &MirrorUpdateRequest{
 		IsEnabled: &isEnabled,
 	})
 	if err != nil {
@@ -179,7 +180,7 @@ func TestSyncNow_Success(t *testing.T) {
 	defer server.Close()
 
 	client := NewClient(server.URL, "test-token")
-	err := client.SyncNow("testns", "testrepo")
+	err := client.SyncNow(context.Background(), "testns", "testrepo")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}

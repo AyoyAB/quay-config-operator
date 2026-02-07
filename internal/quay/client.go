@@ -17,12 +17,16 @@ limitations under the License.
 package quay
 
 import (
+	"context"
 	"crypto/tls"
 	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 )
+
+const httpTimeout = 30 * time.Second
 
 // ClientOption is a functional option for configuring the Quay API client.
 type ClientOption func(*Client)
@@ -37,9 +41,11 @@ type Client struct {
 // NewClient creates a new Quay API client.
 func NewClient(baseURL, token string, opts ...ClientOption) *Client {
 	c := &Client{
-		baseURL:    strings.TrimRight(baseURL, "/"),
-		token:      token,
-		httpClient: http.DefaultClient,
+		baseURL: strings.TrimRight(baseURL, "/"),
+		token:   token,
+		httpClient: &http.Client{
+			Timeout: httpTimeout,
+		},
 	}
 	for _, opt := range opts {
 		opt(c)
@@ -51,6 +57,7 @@ func NewClient(baseURL, token string, opts ...ClientOption) *Client {
 func WithInsecureSkipVerify() ClientOption {
 	return func(c *Client) {
 		c.httpClient = &http.Client{
+			Timeout: httpTimeout,
 			Transport: &http.Transport{
 				TLSClientConfig: &tls.Config{
 					InsecureSkipVerify: true, //nolint:gosec // user-configured for self-signed certs
@@ -67,14 +74,14 @@ func WithHTTPClient(httpClient *http.Client) ClientOption {
 	}
 }
 
-func (c *Client) newRequest(method, path string, body *strings.Reader) (*http.Request, error) {
+func (c *Client) newRequest(ctx context.Context, method, path string, body *strings.Reader) (*http.Request, error) {
 	url := c.baseURL + path
 	var req *http.Request
 	var err error
 	if body != nil {
-		req, err = http.NewRequest(method, url, body)
+		req, err = http.NewRequestWithContext(ctx, method, url, body)
 	} else {
-		req, err = http.NewRequest(method, url, nil)
+		req, err = http.NewRequestWithContext(ctx, method, url, nil)
 	}
 	if err != nil {
 		return nil, err

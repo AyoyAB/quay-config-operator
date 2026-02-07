@@ -17,6 +17,7 @@ limitations under the License.
 package quay
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -26,9 +27,9 @@ import (
 
 // GetMirror retrieves the mirror configuration for a repository.
 // Returns nil, nil if the mirror does not exist (404).
-func (c *Client) GetMirror(namespace, repo string) (*MirrorConfig, error) {
+func (c *Client) GetMirror(ctx context.Context, namespace, repo string) (*MirrorConfig, error) {
 	path := fmt.Sprintf("/api/v1/repository/%s/%s/mirror", namespace, repo)
-	req, err := c.newRequest(http.MethodGet, path, nil)
+	req, err := c.newRequest(ctx, http.MethodGet, path, nil)
 	if err != nil {
 		return nil, fmt.Errorf("creating request: %w", err)
 	}
@@ -57,14 +58,14 @@ func (c *Client) GetMirror(namespace, repo string) (*MirrorConfig, error) {
 }
 
 // CreateMirror creates a mirror configuration for a repository.
-func (c *Client) CreateMirror(namespace, repo string, createReq *MirrorCreateRequest) error {
+func (c *Client) CreateMirror(ctx context.Context, namespace, repo string, createReq *MirrorCreateRequest) error {
 	path := fmt.Sprintf("/api/v1/repository/%s/%s/mirror", namespace, repo)
 	body, err := json.Marshal(createReq)
 	if err != nil {
 		return fmt.Errorf("marshaling request: %w", err)
 	}
 
-	req, err := c.newRequest(http.MethodPost, path, strings.NewReader(string(body)))
+	req, err := c.newRequest(ctx, http.MethodPost, path, strings.NewReader(string(body)))
 	if err != nil {
 		return fmt.Errorf("creating request: %w", err)
 	}
@@ -88,14 +89,14 @@ func (c *Client) CreateMirror(namespace, repo string, createReq *MirrorCreateReq
 }
 
 // UpdateMirror updates the mirror configuration for a repository.
-func (c *Client) UpdateMirror(namespace, repo string, updateReq *MirrorUpdateRequest) error {
+func (c *Client) UpdateMirror(ctx context.Context, namespace, repo string, updateReq *MirrorUpdateRequest) error {
 	path := fmt.Sprintf("/api/v1/repository/%s/%s/mirror", namespace, repo)
 	body, err := json.Marshal(updateReq)
 	if err != nil {
 		return fmt.Errorf("marshaling request: %w", err)
 	}
 
-	req, err := c.newRequest(http.MethodPut, path, strings.NewReader(string(body)))
+	req, err := c.newRequest(ctx, http.MethodPut, path, strings.NewReader(string(body)))
 	if err != nil {
 		return fmt.Errorf("creating request: %w", err)
 	}
@@ -115,9 +116,9 @@ func (c *Client) UpdateMirror(namespace, repo string, updateReq *MirrorUpdateReq
 }
 
 // SyncNow triggers an immediate synchronization of the repository mirror.
-func (c *Client) SyncNow(namespace, repo string) error {
+func (c *Client) SyncNow(ctx context.Context, namespace, repo string) error {
 	path := fmt.Sprintf("/api/v1/repository/%s/%s/mirror/sync-now", namespace, repo)
-	req, err := c.newRequest(http.MethodPost, path, strings.NewReader("{}"))
+	req, err := c.newRequest(ctx, http.MethodPost, path, strings.NewReader("{}"))
 	if err != nil {
 		return fmt.Errorf("creating request: %w", err)
 	}

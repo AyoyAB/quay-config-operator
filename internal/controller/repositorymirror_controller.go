@@ -129,7 +129,7 @@ func (r *RepositoryMirrorReconciler) handleDeletion(
 			updateReq := &quay.MirrorUpdateRequest{
 				IsEnabled: &isEnabled,
 			}
-			if err := quayClient.UpdateMirror(namespace, repoName, updateReq); err != nil {
+			if err := quayClient.UpdateMirror(ctx, namespace, repoName, updateReq); err != nil {
 				logger.Error(err, "failed to disable mirror in Quay")
 				return ctrl.Result{RequeueAfter: requeueDelay}, nil
 			}
@@ -156,7 +156,7 @@ func (r *RepositoryMirrorReconciler) reconcileMirror(
 	r.setCondition(mirror, conditionRunning, metav1.ConditionTrue, "Reconciling", "Reconciling mirror configuration")
 
 	// Get existing mirror from Quay
-	existing, err := quayClient.GetMirror(namespace, repoName)
+	existing, err := quayClient.GetMirror(ctx, namespace, repoName)
 	if err != nil {
 		logger.Error(err, "failed to get mirror from Quay")
 		r.setCondition(mirror, conditionSuccess, metav1.ConditionFalse, "QuayAPIError", err.Error())
@@ -195,7 +195,7 @@ func (r *RepositoryMirrorReconciler) reconcileMirror(
 
 	// Handle forceSync
 	if mirror.Spec.ForceSync != nil && *mirror.Spec.ForceSync {
-		if err := quayClient.SyncNow(namespace, repoName); err != nil {
+		if err := quayClient.SyncNow(ctx, namespace, repoName); err != nil {
 			logger.Error(err, "failed to trigger sync")
 			r.setCondition(mirror, conditionSuccess, metav1.ConditionFalse, "SyncError", err.Error())
 			mirror.Status.Message = err.Error()
@@ -270,7 +270,7 @@ func (r *RepositoryMirrorReconciler) createMirror(
 		}
 	}
 
-	return quayClient.CreateMirror(namespace, repoName, createReq)
+	return quayClient.CreateMirror(ctx, namespace, repoName, createReq)
 }
 
 func (r *RepositoryMirrorReconciler) updateMirror(
@@ -315,7 +315,7 @@ func (r *RepositoryMirrorReconciler) updateMirror(
 		}
 	}
 
-	return quayClient.UpdateMirror(namespace, repoName, updateReq)
+	return quayClient.UpdateMirror(ctx, namespace, repoName, updateReq)
 }
 
 func (r *RepositoryMirrorReconciler) buildExternalRegistryConfig(mirror *quayv1alpha1.RepositoryMirror) *quay.ExternalRegistryConfig {
