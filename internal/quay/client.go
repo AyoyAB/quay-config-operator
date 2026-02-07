@@ -20,6 +20,7 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
+	"math"
 	"net/http"
 	"strconv"
 	"strings"
@@ -105,33 +106,46 @@ func ParseSyncInterval(interval string) (int, error) {
 
 	// Check if last character is a suffix
 	last := interval[len(interval)-1]
+
+	var val int
+	var multiplier int
 	switch {
 	case last >= '0' && last <= '9':
 		// Bare number, treat as seconds
-		val, err := strconv.Atoi(interval)
+		v, err := strconv.Atoi(interval)
 		if err != nil {
 			return 0, fmt.Errorf("invalid sync interval %q: %w", interval, err)
 		}
-		return val, nil
+		val = v
+		multiplier = 1
 	default:
 		numStr := interval[:len(interval)-1]
-		val, err := strconv.Atoi(numStr)
+		v, err := strconv.Atoi(numStr)
 		if err != nil {
 			return 0, fmt.Errorf("invalid sync interval %q: %w", interval, err)
 		}
+		val = v
 		switch last {
 		case 's':
-			return val, nil
+			multiplier = 1
 		case 'm':
-			return val * 60, nil
+			multiplier = 60
 		case 'h':
-			return val * 3600, nil
+			multiplier = 3600
 		case 'd':
-			return val * 86400, nil
+			multiplier = 86400
 		case 'w':
-			return val * 604800, nil
+			multiplier = 604800
 		default:
 			return 0, fmt.Errorf("invalid sync interval suffix %q in %q", string(last), interval)
 		}
 	}
+
+	if val <= 0 {
+		return 0, fmt.Errorf("sync interval must be positive, got %q", interval)
+	}
+	if val > math.MaxInt/multiplier {
+		return 0, fmt.Errorf("sync interval too large: %q", interval)
+	}
+	return val * multiplier, nil
 }

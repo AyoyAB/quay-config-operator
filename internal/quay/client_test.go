@@ -40,6 +40,10 @@ func TestParseSyncInterval(t *testing.T) {
 		{name: "invalid suffix", input: "10x", wantErr: true},
 		{name: "invalid number", input: "abcs", wantErr: true},
 		{name: "invalid bare string", input: "abc", wantErr: true},
+		{name: "negative value", input: "-1s", wantErr: true},
+		{name: "zero value", input: "0s", wantErr: true},
+		{name: "overflow weeks", input: "999999999999999999w", wantErr: true},
+		{name: "overflow days", input: "999999999999999999d", wantErr: true},
 	}
 
 	for _, tt := range tests {
