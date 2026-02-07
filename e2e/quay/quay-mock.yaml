@@ -22,7 +22,8 @@ spec:
             - containerPort: 8080
           env:
             - name: QUAY_TOKEN
-              value: "e2e-test-token"
+              value: "e2e-test-token" # Hardcoded token is acceptable: only used locally in Kind during e2e tests
+
             - name: PORT
               value: "8080"
           readinessProbe:

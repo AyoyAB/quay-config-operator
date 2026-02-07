@@ -9,6 +9,7 @@ PROJECT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
 LOCAL_REGISTRY_PORT="${LOCAL_REGISTRY_PORT:-5001}"
 MOCK_IMAGE="localhost:${LOCAL_REGISTRY_PORT}/quay-mock:latest"
 QUAY_NAMESPACE="quay-system"
+# Hardcoded token is acceptable: only used locally in Kind during e2e tests.
 QUAY_TOKEN="e2e-test-token"
 
 # ---------- Step 1: Build and push mock image ----------
