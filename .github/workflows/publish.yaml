@@ -70,3 +70,16 @@ jobs:
           DIGEST: ${{ steps.build-push.outputs.digest }}
           IMAGE: ghcr.io/${{ github.repository }}
         run: cosign sign --yes "${IMAGE,,}@${DIGEST}"
+
+      - name: Install oras
+        uses: oras-project/setup-oras@v1
+
+      - name: Attach SBOM
+        env:
+          DIGEST: ${{ steps.build-push.outputs.digest }}
+          IMAGE: ghcr.io/${{ github.repository }}
+        run: |
+          docker buildx imagetools inspect "${IMAGE,,}@${DIGEST}" \
+            --format '{{ json (index .SBOM "linux/amd64").SPDX }}' > sbom.spdx.json
+          oras attach --artifact-type application/spdx+json \
+            "${IMAGE,,}@${DIGEST}" sbom.spdx.json:application/spdx+json
