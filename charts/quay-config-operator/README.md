@@ -18,7 +18,7 @@ helm install quay-config-operator quay-config-operator/quay-config-operator
 | affinity | object | `{}` | Affinity rules for pod assignment |
 | fullnameOverride | string | `""` | Override the full name of the resources |
 | image.pullPolicy | string | `"IfNotPresent"` | Image pull policy |
-| image.repository | string | `"ghcr.io/ayoy/quay-config-operator"` | Container image repository |
+| image.repository | string | `"ghcr.io/ayoyab/quay-config-operator"` | Container image repository |
 | image.tag | string | `""` | Image tag (defaults to chart appVersion if not set) |
 | imagePullSecrets | list | `[]` | Image pull secrets for private registries |
 | leaderElection.enabled | bool | `true` | Enable leader election for high availability |
