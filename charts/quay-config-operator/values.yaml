@@ -36,6 +36,9 @@ metrics:
   service:
     # -- Metrics service port
     port: 8080
+  prometheusRule:
+    # -- Enable PrometheusRule for alerting on reconcile errors
+    enabled: false
 
 # -- Resource limits and requests for the controller
 resources:

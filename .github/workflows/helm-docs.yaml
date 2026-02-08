@@ -34,7 +34,7 @@ jobs:
       - name: Check CRD is in sync
         run: |
           if ! diff config/crd/bases/quay.ayoy.se_repositorymirrors.yaml \
-                    charts/quay-config-operator/templates/crd.yaml; then
-            echo "::error::Helm chart CRD is out of sync with generated CRD. Copy config/crd/bases/quay.ayoy.se_repositorymirrors.yaml to charts/quay-config-operator/templates/crd.yaml and commit."
+                    charts/quay-config-operator/crds/quay.ayoy.se_repositorymirrors.yaml; then
+            echo "::error::Helm chart CRD is out of sync with generated CRD. Copy config/crd/bases/quay.ayoy.se_repositorymirrors.yaml to charts/quay-config-operator/crds/ and commit."
             exit 1
           fi

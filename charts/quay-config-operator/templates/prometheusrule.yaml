@@ -1,0 +1,28 @@
+{{- if .Values.metrics.prometheusRule.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ include "quay-config-operator.fullname" . }}
+  labels:
+    {{- include "quay-config-operator.labels" . | nindent 4 }}
+spec:
+  groups:
+    - name: quay-config-operator
+      rules:
+        - alert: QuayConfigOperatorReconcileErrors
+          expr: rate(controller_runtime_reconcile_total{controller="repositorymirror",result="error"}[5m]) > 0
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Quay Config Operator reconcile errors detected"
+            description: "The RepositoryMirror controller is experiencing reconcile errors."
+        - alert: QuayConfigOperatorReconcileErrorsHigh
+          expr: rate(controller_runtime_reconcile_total{controller="repositorymirror",result="error"}[5m]) > 1
+          for: 10m
+          labels:
+            severity: critical
+          annotations:
+            summary: "High rate of Quay Config Operator reconcile errors"
+            description: "Sustained high rate of reconcile errors in the RepositoryMirror controller."
+{{- end }}

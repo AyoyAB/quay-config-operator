@@ -128,6 +128,34 @@ mirror-image-setup: ## Build and push the test mirror source image.
 test-e2e: kind-create mirror-image-setup kind-load quay-setup deploy chainsaw ## Run full e2e test pipeline.
 	$(CHAINSAW) test --test-dir ./e2e/ --config ./e2e/.chainsaw.yaml
 
+##@ Helm
+
+HELM_RELEASE_NAME ?= quay-config-operator
+HELM_NAMESPACE ?= quay-config-operator-system
+
+.PHONY: helm-docs
+helm-docs: ## Generate Helm chart documentation with helm-docs.
+	@command -v helm-docs >/dev/null 2>&1 || { \
+		if [ "$$(uname)" = "Darwin" ]; then \
+			echo "helm-docs not found, installing via brew..."; \
+			brew install norwoodj/tap/helm-docs; \
+		else \
+			echo "helm-docs not found. Install it from https://github.com/norwoodj/helm-docs"; \
+			exit 1; \
+		fi; \
+	}
+	helm-docs --chart-search-root charts/
+
+.PHONY: helm-install
+helm-install: ## Install the Helm chart.
+	helm upgrade --install $(HELM_RELEASE_NAME) charts/quay-config-operator \
+		--namespace $(HELM_NAMESPACE) --create-namespace \
+		--set image.tag=$(shell echo ${IMG} | cut -d: -f2)
+
+.PHONY: helm-uninstall
+helm-uninstall: ## Uninstall the Helm release.
+	helm uninstall $(HELM_RELEASE_NAME) --namespace $(HELM_NAMESPACE)
+
 ##@ Dependencies
 
 ## Location to install dependencies to
