@@ -23,6 +23,7 @@ helm install quay-config-operator quay-config-operator/quay-config-operator
 | imagePullSecrets | list | `[]` | Image pull secrets for private registries |
 | leaderElection.enabled | bool | `true` | Enable leader election for high availability |
 | metrics.enabled | bool | `true` | Enable metrics service |
+| metrics.prometheusRule.enabled | bool | `false` | Enable PrometheusRule for alerting on reconcile errors |
 | metrics.service.port | int | `8080` | Metrics service port |
 | nameOverride | string | `""` | Override the name of the chart |
 | nodeSelector | object | `{}` | Node selector for pod assignment |
