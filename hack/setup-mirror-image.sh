@@ -4,7 +4,7 @@
 set -euo pipefail
 
 LOCAL_REGISTRY_PORT="${1:-5001}"
-IMG="${IMG:-ghcr.io/ayoy/quay-config-operator:latest}"
+IMG="${IMG:-ghcr.io/ayoyab/quay-config-operator:latest}"
 MIRROR_IMAGE="localhost:${LOCAL_REGISTRY_PORT}/ayoy/quay-config-operator"
 TAG="latest"
 
