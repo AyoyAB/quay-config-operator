@@ -31,8 +31,8 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
 
-	quayv1alpha1 "github.com/ayoy/quay-config-operator/api/v1alpha1"
-	"github.com/ayoy/quay-config-operator/internal/quay"
+	quayv1alpha1 "github.com/AyoyAB/quay-config-operator/api/v1alpha1"
+	"github.com/AyoyAB/quay-config-operator/internal/quay"
 )
 
 type mockRequest struct {

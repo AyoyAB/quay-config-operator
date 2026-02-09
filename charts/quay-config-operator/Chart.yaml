@@ -4,8 +4,8 @@ description: A Helm chart for the Quay Config Operator - manages Quay Container 
 type: application
 version: 0.1.0
 appVersion: "0.1.0"
-home: https://github.com/ayoy/quay-config-operator
+home: https://github.com/AyoyAB/quay-config-operator
 sources:
-  - https://github.com/ayoy/quay-config-operator
+  - https://github.com/AyoyAB/quay-config-operator
 maintainers:
   - name: ayoy

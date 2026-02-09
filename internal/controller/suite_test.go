@@ -33,7 +33,7 @@ import (
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	quayv1alpha1 "github.com/ayoy/quay-config-operator/api/v1alpha1"
+	quayv1alpha1 "github.com/AyoyAB/quay-config-operator/api/v1alpha1"
 )
 
 var (

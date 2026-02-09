@@ -1,4 +1,4 @@
-module github.com/ayoy/quay-config-operator
+module github.com/AyoyAB/quay-config-operator
 
 go 1.25.7
 

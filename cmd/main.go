@@ -32,9 +32,9 @@ import (
 	metricsserver "sigs.k8s.io/controller-runtime/pkg/metrics/server"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 
-	quayv1alpha1 "github.com/ayoy/quay-config-operator/api/v1alpha1"
-	"github.com/ayoy/quay-config-operator/internal/controller"
-	"github.com/ayoy/quay-config-operator/internal/quay"
+	quayv1alpha1 "github.com/AyoyAB/quay-config-operator/api/v1alpha1"
+	"github.com/AyoyAB/quay-config-operator/internal/controller"
+	"github.com/AyoyAB/quay-config-operator/internal/quay"
 )
 
 var (
