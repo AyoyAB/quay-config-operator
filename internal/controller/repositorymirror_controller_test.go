@@ -47,6 +47,8 @@ var _ = Describe("RepositoryMirror Controller", func() {
 		mirrorNamespace = "default"
 		secretName      = "quay-credentials"
 		repoName        = "myorg/myrepo"
+		mirrorAPIPath   = "/api/v1/repository/myorg/myrepo/mirror"
+		syncNowAPIPath  = "/api/v1/repository/myorg/myrepo/mirror/sync-now"
 	)
 
 	var (
@@ -77,14 +79,14 @@ var _ = Describe("RepositoryMirror Controller", func() {
 			requests = append(requests, req)
 
 			switch {
-			case r.Method == http.MethodGet && r.URL.Path == "/api/v1/repository/myorg/myrepo/mirror":
+			case r.Method == http.MethodGet && r.URL.Path == mirrorAPIPath:
 				// Return 404 by default (no existing mirror)
 				w.WriteHeader(http.StatusNotFound)
-			case r.Method == http.MethodPost && r.URL.Path == "/api/v1/repository/myorg/myrepo/mirror":
+			case r.Method == http.MethodPost && r.URL.Path == mirrorAPIPath:
 				w.WriteHeader(http.StatusCreated)
-			case r.Method == http.MethodPut && r.URL.Path == "/api/v1/repository/myorg/myrepo/mirror":
+			case r.Method == http.MethodPut && r.URL.Path == mirrorAPIPath:
 				w.WriteHeader(http.StatusOK)
-			case r.Method == http.MethodPost && r.URL.Path == "/api/v1/repository/myorg/myrepo/mirror/sync-now":
+			case r.Method == http.MethodPost && r.URL.Path == syncNowAPIPath:
 				w.WriteHeader(http.StatusNoContent)
 			default:
 				w.WriteHeader(http.StatusNotFound)
@@ -189,7 +191,7 @@ var _ = Describe("RepositoryMirror Controller", func() {
 			defer mu.Unlock()
 			found := false
 			for _, req := range requests {
-				if req.Method == http.MethodPost && req.Path == "/api/v1/repository/myorg/myrepo/mirror" {
+				if req.Method == http.MethodPost && req.Path == mirrorAPIPath {
 					found = true
 					break
 				}
@@ -210,7 +212,7 @@ var _ = Describe("RepositoryMirror Controller", func() {
 				requests = append(requests, req)
 
 				switch {
-				case r.Method == http.MethodGet && r.URL.Path == "/api/v1/repository/myorg/myrepo/mirror":
+				case r.Method == http.MethodGet && r.URL.Path == mirrorAPIPath:
 					w.WriteHeader(http.StatusOK)
 					_ = json.NewEncoder(w).Encode(quay.MirrorConfig{
 						IsEnabled:         true,
@@ -287,9 +289,9 @@ var _ = Describe("RepositoryMirror Controller", func() {
 				requests = append(requests, req)
 
 				switch {
-				case r.Method == http.MethodGet && r.URL.Path == "/api/v1/repository/myorg/myrepo/mirror":
+				case r.Method == http.MethodGet && r.URL.Path == mirrorAPIPath:
 					w.WriteHeader(http.StatusNotFound)
-				case r.Method == http.MethodPost && r.URL.Path == "/api/v1/repository/myorg/myrepo/mirror":
+				case r.Method == http.MethodPost && r.URL.Path == mirrorAPIPath:
 					w.WriteHeader(http.StatusCreated)
 				case r.Method == http.MethodPut:
 					w.WriteHeader(http.StatusOK)
@@ -364,9 +366,9 @@ var _ = Describe("RepositoryMirror Controller", func() {
 				requests = append(requests, req)
 
 				switch {
-				case r.Method == http.MethodGet && r.URL.Path == "/api/v1/repository/myorg/myrepo/mirror":
+				case r.Method == http.MethodGet && r.URL.Path == mirrorAPIPath:
 					w.WriteHeader(http.StatusNotFound)
-				case r.Method == http.MethodPost && r.URL.Path == "/api/v1/repository/myorg/myrepo/mirror":
+				case r.Method == http.MethodPost && r.URL.Path == mirrorAPIPath:
 					w.WriteHeader(http.StatusCreated)
 				default:
 					w.WriteHeader(http.StatusOK)
@@ -492,11 +494,11 @@ var _ = Describe("RepositoryMirror Controller", func() {
 				requests = append(requests, req)
 
 				switch {
-				case r.Method == http.MethodGet && r.URL.Path == "/api/v1/repository/myorg/myrepo/mirror":
+				case r.Method == http.MethodGet && r.URL.Path == mirrorAPIPath:
 					w.WriteHeader(http.StatusNotFound)
-				case r.Method == http.MethodPost && r.URL.Path == "/api/v1/repository/myorg/myrepo/mirror":
+				case r.Method == http.MethodPost && r.URL.Path == mirrorAPIPath:
 					w.WriteHeader(http.StatusCreated)
-				case r.Method == http.MethodPost && r.URL.Path == "/api/v1/repository/myorg/myrepo/mirror/sync-now":
+				case r.Method == http.MethodPost && r.URL.Path == syncNowAPIPath:
 					w.WriteHeader(http.StatusNoContent)
 				default:
 					w.WriteHeader(http.StatusOK)
@@ -541,7 +543,7 @@ var _ = Describe("RepositoryMirror Controller", func() {
 			defer mu.Unlock()
 			found := false
 			for _, req := range requests {
-				if req.Method == http.MethodPost && req.Path == "/api/v1/repository/myorg/myrepo/mirror/sync-now" {
+				if req.Method == http.MethodPost && req.Path == syncNowAPIPath {
 					found = true
 					break
 				}
@@ -554,7 +556,7 @@ var _ = Describe("RepositoryMirror Controller", func() {
 		It("should set QuayAPIError condition", func() {
 			mockServer.Close()
 			mockServer = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				if r.Method == http.MethodGet && r.URL.Path == "/api/v1/repository/myorg/myrepo/mirror" {
+				if r.Method == http.MethodGet && r.URL.Path == mirrorAPIPath {
 					w.WriteHeader(http.StatusInternalServerError)
 				} else {
 					w.WriteHeader(http.StatusNotFound)
@@ -612,9 +614,9 @@ var _ = Describe("RepositoryMirror Controller", func() {
 			mockServer.Close()
 			mockServer = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				switch {
-				case r.Method == http.MethodGet && r.URL.Path == "/api/v1/repository/myorg/myrepo/mirror":
+				case r.Method == http.MethodGet && r.URL.Path == mirrorAPIPath:
 					w.WriteHeader(http.StatusNotFound)
-				case r.Method == http.MethodPost && r.URL.Path == "/api/v1/repository/myorg/myrepo/mirror":
+				case r.Method == http.MethodPost && r.URL.Path == mirrorAPIPath:
 					w.WriteHeader(http.StatusInternalServerError)
 				default:
 					w.WriteHeader(http.StatusNotFound)
@@ -672,14 +674,14 @@ var _ = Describe("RepositoryMirror Controller", func() {
 			mockServer.Close()
 			mockServer = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				switch {
-				case r.Method == http.MethodGet && r.URL.Path == "/api/v1/repository/myorg/myrepo/mirror":
+				case r.Method == http.MethodGet && r.URL.Path == mirrorAPIPath:
 					w.WriteHeader(http.StatusOK)
 					_ = json.NewEncoder(w).Encode(quay.MirrorConfig{
 						IsEnabled:         true,
 						ExternalReference: "registry.example.com/repo",
 						SyncInterval:      86400,
 					})
-				case r.Method == http.MethodPut && r.URL.Path == "/api/v1/repository/myorg/myrepo/mirror":
+				case r.Method == http.MethodPut && r.URL.Path == mirrorAPIPath:
 					w.WriteHeader(http.StatusInternalServerError)
 				default:
 					w.WriteHeader(http.StatusNotFound)
@@ -737,11 +739,11 @@ var _ = Describe("RepositoryMirror Controller", func() {
 			mockServer.Close()
 			mockServer = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				switch {
-				case r.Method == http.MethodGet && r.URL.Path == "/api/v1/repository/myorg/myrepo/mirror":
+				case r.Method == http.MethodGet && r.URL.Path == mirrorAPIPath:
 					w.WriteHeader(http.StatusNotFound)
-				case r.Method == http.MethodPost && r.URL.Path == "/api/v1/repository/myorg/myrepo/mirror":
+				case r.Method == http.MethodPost && r.URL.Path == mirrorAPIPath:
 					w.WriteHeader(http.StatusCreated)
-				case r.Method == http.MethodPost && r.URL.Path == "/api/v1/repository/myorg/myrepo/mirror/sync-now":
+				case r.Method == http.MethodPost && r.URL.Path == syncNowAPIPath:
 					w.WriteHeader(http.StatusInternalServerError)
 				default:
 					w.WriteHeader(http.StatusNotFound)
@@ -869,9 +871,9 @@ var _ = Describe("RepositoryMirror Controller", func() {
 				defer mu.Unlock()
 
 				switch {
-				case r.Method == http.MethodGet && r.URL.Path == "/api/v1/repository/myorg/myrepo/mirror":
+				case r.Method == http.MethodGet && r.URL.Path == mirrorAPIPath:
 					w.WriteHeader(http.StatusNotFound)
-				case r.Method == http.MethodPost && r.URL.Path == "/api/v1/repository/myorg/myrepo/mirror":
+				case r.Method == http.MethodPost && r.URL.Path == mirrorAPIPath:
 					var body map[string]interface{}
 					_ = json.NewDecoder(r.Body).Decode(&body)
 					capturedBody = body
@@ -927,7 +929,7 @@ var _ = Describe("RepositoryMirror Controller", func() {
 		It("should set CreateError condition", func() {
 			mockServer.Close()
 			mockServer = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				if r.Method == http.MethodGet && r.URL.Path == "/api/v1/repository/myorg/myrepo/mirror" {
+				if r.Method == http.MethodGet && r.URL.Path == mirrorAPIPath {
 					w.WriteHeader(http.StatusNotFound)
 				} else {
 					w.WriteHeader(http.StatusNotFound)
@@ -992,9 +994,9 @@ var _ = Describe("RepositoryMirror Controller", func() {
 				defer mu.Unlock()
 
 				switch {
-				case r.Method == http.MethodGet && r.URL.Path == "/api/v1/repository/myorg/myrepo/mirror":
+				case r.Method == http.MethodGet && r.URL.Path == mirrorAPIPath:
 					w.WriteHeader(http.StatusNotFound)
-				case r.Method == http.MethodPost && r.URL.Path == "/api/v1/repository/myorg/myrepo/mirror":
+				case r.Method == http.MethodPost && r.URL.Path == mirrorAPIPath:
 					var body map[string]interface{}
 					_ = json.NewDecoder(r.Body).Decode(&body)
 					capturedBody = body

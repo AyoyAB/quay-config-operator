@@ -106,7 +106,7 @@ func (r *RepositoryMirrorReconciler) Reconcile(ctx context.Context, req ctrl.Req
 	}
 
 	// Handle deletion
-	if !mirror.ObjectMeta.DeletionTimestamp.IsZero() {
+	if !mirror.DeletionTimestamp.IsZero() {
 		return r.handleDeletion(ctx, &mirror, quayClient, namespace, repoName)
 	}
 

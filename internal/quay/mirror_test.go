@@ -24,6 +24,8 @@ import (
 	"testing"
 )
 
+const testMirrorAPIPath = "/api/v1/repository/testns/testrepo/mirror"
+
 func TestGetMirror_Success(t *testing.T) {
 	expected := &MirrorConfig{
 		IsEnabled:         true,
@@ -38,7 +40,7 @@ func TestGetMirror_Success(t *testing.T) {
 	}
 
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path != "/api/v1/repository/testns/testrepo/mirror" {
+		if r.URL.Path != testMirrorAPIPath {
 			t.Errorf("unexpected path: %s", r.URL.Path)
 		}
 		if r.Method != http.MethodGet {
@@ -89,7 +91,7 @@ func TestGetMirror_NotFound(t *testing.T) {
 
 func TestCreateMirror_Success(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path != "/api/v1/repository/testns/testrepo/mirror" {
+		if r.URL.Path != testMirrorAPIPath {
 			t.Errorf("unexpected path: %s", r.URL.Path)
 		}
 		if r.Method != http.MethodPost {
@@ -141,7 +143,7 @@ func TestCreateMirror_Conflict(t *testing.T) {
 
 func TestUpdateMirror_Success(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path != "/api/v1/repository/testns/testrepo/mirror" {
+		if r.URL.Path != testMirrorAPIPath {
 			t.Errorf("unexpected path: %s", r.URL.Path)
 		}
 		if r.Method != http.MethodPut {

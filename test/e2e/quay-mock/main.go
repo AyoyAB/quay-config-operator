@@ -72,7 +72,7 @@ func main() {
 		// Health check (unauthenticated)
 		if path == "/health" || path == "/" {
 			w.WriteHeader(http.StatusOK)
-			fmt.Fprint(w, "ok")
+			_, _ = fmt.Fprint(w, "ok")
 			return
 		}
 

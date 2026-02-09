@@ -45,7 +45,7 @@ func (c *Client) GetMirror(ctx context.Context, namespace, repo string) (*Mirror
 	if err != nil {
 		return nil, fmt.Errorf("executing request: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode == http.StatusNotFound {
 		return nil, nil
@@ -81,7 +81,7 @@ func (c *Client) CreateMirror(ctx context.Context, namespace, repo string, creat
 	if err != nil {
 		return fmt.Errorf("executing request: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode == http.StatusConflict {
 		return fmt.Errorf("mirror already exists for %s/%s", namespace, repo)
@@ -112,7 +112,7 @@ func (c *Client) UpdateMirror(ctx context.Context, namespace, repo string, updat
 	if err != nil {
 		return fmt.Errorf("executing request: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusCreated {
 		respBody, _ := io.ReadAll(io.LimitReader(resp.Body, maxResponseBody))
@@ -134,7 +134,7 @@ func (c *Client) SyncNow(ctx context.Context, namespace, repo string) error {
 	if err != nil {
 		return fmt.Errorf("executing request: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusNoContent {
 		respBody, _ := io.ReadAll(io.LimitReader(resp.Body, maxResponseBody))
