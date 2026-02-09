@@ -14,15 +14,15 @@ QUAY_TOKEN="e2e-test-token"
 
 # ---------- Step 1: Build and push mock image ----------
 echo "==> Building quay-mock image..."
-docker build -t "${MOCK_IMAGE}" "${PROJECT_DIR}/e2e/quay-mock"
+docker build -t "${MOCK_IMAGE}" "${PROJECT_DIR}/test/e2e/quay-mock"
 
 echo "==> Pushing quay-mock to local registry..."
 docker push "${MOCK_IMAGE}"
 
 # ---------- Step 2: Deploy mock ----------
 echo "==> Deploying quay-mock..."
-kubectl apply -f "${PROJECT_DIR}/e2e/quay/namespace.yaml"
-kubectl apply -f "${PROJECT_DIR}/e2e/quay/quay-mock.yaml"
+kubectl apply -f "${PROJECT_DIR}/test/e2e/quay/namespace.yaml"
+kubectl apply -f "${PROJECT_DIR}/test/e2e/quay/quay-mock.yaml"
 
 echo "==> Waiting for quay-mock to be ready..."
 kubectl -n "${QUAY_NAMESPACE}" rollout status deployment/quay-mock --timeout=60s
